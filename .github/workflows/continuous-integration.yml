@@ -1,0 +1,43 @@
+name: lib-ledger-core CI
+
+on:
+    push:
+        path:
+            - '**.cpp'
+            - '**.hpp'
+    pull_request:
+        path:
+            - '**.cpp'
+            - '**.hpp'
+
+jobs:
+    prepare-linux-debug:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Install dependencies
+            shell: bash
+            run: ./scripts/install_dependencies Linux Debug
+          - uses: actions/checkout@v2
+          - name: Checkout submodules
+            shell: bash
+            run: ./scripts/checkout_submodule.sh
+
+    build-linux-debug-core:
+        needs: prepare-linux-debug
+        steps:
+          - name: Generate interfaces
+            shell: bash
+            run: ./tools/lc api
+          - name: CMake configuration
+            shell: bash
+            run: ./scripts/cmake_configuration.sh Linux Debug
+          - name: Build target
+            run: cd ledger-core/build && make -j8
+          - name: Install target
+            run: cd ledger-core/build && make install
+
+    test-linux-debug-core:
+        needs: build-linux-debug-core
+        steps:
+          - name: Test target
+            run: cd ledger-core/build/ && make test
