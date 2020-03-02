@@ -16,7 +16,9 @@ jobs:
         steps:
           - name: Install dependencies
             shell: bash
-            run: sh ./scripts/install_dependencies.sh Linux Debug
+            run: |
+              chmod +x ./scripts/install_dependencies.sh
+              bash ./scripts/install_dependencies.sh Linux Debug
           - uses: actions/checkout@v2
           - name: Checkout submodules
             shell: bash
