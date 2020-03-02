@@ -7,8 +7,8 @@ echo "=====> Install dependencies for $1 in $2 mode"
 
 if [ "$1" == "Linux" ]; then
     sudo apt-get update
-    sudo apt-get install -y apt-transport-https libx11-xcb-dev
-    sudo apt-get install -y libssl-dev tc
+    sudo apt-get install -y libx11-xcb-dev
+    sudo apt-get install -y libssl-dev tcl
 
     if [ "$2" == "Debug" ]; then
         echo "=====> Install Qt5"
