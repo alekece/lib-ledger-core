@@ -16,7 +16,7 @@ if [ "$1" == "Linux" ]; then
     fi
 
     echo "=====> Install SQLite"
-    sudo apt-get isntall -y sqlite3 sqlite libsqlite3-dev
+    sudo apt-get install -y sqlite3 sqlite libsqlite3-dev
 fi
 
 if [ "$1" == "Macos" ]; then

@@ -21,11 +21,14 @@ jobs:
           - name: Checkout submodules
             shell: bash
             run: ./scripts/checkout_submodule.sh
-
+          - name: Upload
+            uses: actions/upload-artifact@v1
     build-linux-debug-core:
         runs-on: ubuntu-latest
         needs: prepare-linux-debug
         steps:
+          - name: Download
+            uses: actions/download-artifact@v1
           - name: Generate interfaces
             shell: bash
             run: ./tools/lc api
