@@ -12,7 +12,7 @@ cmake_parameters="-DCMAKE_BUILD_TYPE=$2 -DCMAKE_INSTALL_PREFIX=../../install"
 
 if [ -z "$3" ]; then
     build_target="$build_target-$3"
-else
+fi
 
 if [ ! -d "install" ]; then
     echo "=====> Create install directory"
