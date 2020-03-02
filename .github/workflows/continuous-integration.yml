@@ -23,6 +23,7 @@ jobs:
             run: ./scripts/checkout_submodule.sh
 
     build-linux-debug-core:
+        runs-on: ubuntu-latest
         needs: prepare-linux-debug
         steps:
           - name: Generate interfaces
@@ -37,6 +38,7 @@ jobs:
             run: cd ledger-core/build && make install
 
     test-linux-debug-core:
+        runs-on: ubuntu-latest
         needs: build-linux-debug-core
         steps:
           - name: Test target
