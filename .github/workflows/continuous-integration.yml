@@ -11,7 +11,7 @@ on:
             - '**.hpp'
 
 jobs:
-    prepare-linux-debug:
+    build-linux-debug-core:
         runs-on: ubuntu-latest
         steps:
           - uses: actions/checkout@v2
@@ -21,19 +21,6 @@ jobs:
           - name: Checkout submodules
             shell: bash
             run: ./scripts/checkout_submodule.sh
-          - name: Upload
-            uses: actions/upload-artifact@v1
-            with:
-              name: distribution
-              path: ./
-    build-linux-debug-core:
-        runs-on: ubuntu-latest
-        needs: prepare-linux-debug
-        steps:
-          - name: Download
-            uses: actions/download-artifact@v1
-            with:
-              name: distribution
           - name: Generate interfaces
             shell: bash
             run: ./tools/lc api
@@ -41,13 +28,22 @@ jobs:
             shell: bash
             run: ./scripts/cmake_configuration.sh Linux Debug
           - name: Build target
-            run: cd ledger-core/build && make -j8
+            working-directory: ./ledger-core/build
+            run: make -j8
           - name: Install target
-            run: cd ledger-core/build && make install
+            working-directory: ./ledger-core/build
+            run: make install
+          - name: Upload install directory
+            uses: actions/upload-artifact@v1
+            with:
+              name: install
+              path: ./install
 
-    test-linux-debug-core:
+    build-linux-debug-bitcoin:
         runs-on: ubuntu-latest
-        needs: build-linux-debug-core
+        needs: build-linux-core-debug
         steps:
-          - name: Test target
-            run: cd ledger-core/build/ && make test
+          - name: Download install directory
+            uses: actions/download-artifact@v1
+            with:
+              name: install
