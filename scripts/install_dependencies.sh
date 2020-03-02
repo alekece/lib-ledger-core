@@ -5,7 +5,7 @@
 
 echo "=====> Install dependencies for $1 in $2 mode"
 
-if [ "$1" == "Linux" ]; then
+if [ "$1" -eq "Linux" ]; then
     apt-get update
     apt-get install -y apt-transport-https libx11-xcb-dev
     apt-get install -y libssl-dev tc
