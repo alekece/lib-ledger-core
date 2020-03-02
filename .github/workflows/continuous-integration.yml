@@ -14,12 +14,10 @@ jobs:
     prepare-linux-debug:
         runs-on: ubuntu-latest
         steps:
+          - uses: actions/checkout@v2
           - name: Install dependencies
             shell: bash
-            run: |
-              chmod +x ./scripts/install_dependencies.sh
-              bash ./scripts/install_dependencies.sh Linux Debug
-          - uses: actions/checkout@v2
+            run: ./scripts/install_dependencies.sh Linux Debug
           - name: Checkout submodules
             shell: bash
             run: ./scripts/checkout_submodule.sh
