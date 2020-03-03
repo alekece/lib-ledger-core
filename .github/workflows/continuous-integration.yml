@@ -16,34 +16,25 @@ jobs:
         steps:
           - uses: actions/checkout@v2
           - name: Install dependencies
-            shell: bash
-            run: ./scripts/install_dependencies.sh Linux Debug
+            run: |
+              sudo apt-get install -y libx11-xcb libssl-dev tcl
+              sudo apt-get install -y qt5-default libqt5websockets5 libqt5websockets5-dev
+              sudo apt-get install -y slqlite3 sqlite libsqlit3-dev
           - name: Checkout submodules
-            shell: bash
-            run: ./scripts/checkout_submodule.sh
+            run: |
+              git submodule init
+              git submodule update --recursive
           - name: Generate interfaces
             shell: bash
             run: ./tools/lc api
-          - name: CMake configuration
-            shell: bash
-            run: ./scripts/cmake_configuration.sh Linux Debug
-          - name: Build target
-            working-directory: ./ledger-core/build
+          - run: mkdir -p ledger-core/build
+          - name: Prepare build
+            working-directory: ledger-core/build
+            run: cmake -DCMAKE_BUILD_TYPE=Debug -DPG_SUPPORT=ON -DCMAKE_INSTALL_PREFIX=../../install -DSYS_OPENSSL=ON -DOPENSSL_SSL_LIBRARIES=/usr/lib/x86_64-linux-gnu -DOPENSSL_INCLUDE_DIR=/usr/include/openssl ..
+          - name: Build
+            working-directory: ledger-core/build
             run: make -j8
-          - name: Install target
-            working-directory: ./ledger-core/build
+          - name: Install
+            working-directory: ledger-core/build
             run: make install
-          - name: Upload install directory
-            uses: actions/upload-artifact@v1
-            with:
-              name: install
-              path: ./install
 
-    build-linux-debug-bitcoin:
-        runs-on: ubuntu-latest
-        needs: build-linux-debug-core
-        steps:
-          - name: Download install directory
-            uses: actions/download-artifact@v1
-            with:
-              name: install
