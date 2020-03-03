@@ -22,12 +22,12 @@ jobs:
           mode: [Debug]
       runs-on: ${{ matrix.os.name }}
       steps:
-        - name: Setup environment
-          shell: bash
-          run: ./scripts/install_dependencies.sh ${{ matrix.os.alias }} ${{ matrix.mode }}
-        - name: Checkout
+        - name: Checkout repository
           uses: actions/checkout@v2
-        - name: Checkout submodule
+        - name: Install dependencies
+          shell: bash
+          run: scripts/install_dependencies.sh ${{ matrix.os.alias }} ${{ matrix.mode }}
+        - name: Checkout submodules
           run: |
             git submodule init
             git submodule update --recursive
@@ -36,7 +36,7 @@ jobs:
           run: tools/lc api
         - name: Configure CMake
           shell: bash
-          run: ./scripts/configure_cmake.sh ${{ matrix.os.alias }} ${{ matrix.mode }}
+          run: scripts/configure_cmake.sh ${{ matrix.os.alias }} ${{ matrix.mode }}
         - name: Build ledger-core
           working-directory: ledger-core/build
           run: make -j8
