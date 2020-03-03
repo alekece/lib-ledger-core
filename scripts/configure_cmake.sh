@@ -10,7 +10,7 @@ build_target="ledger-core"
 # We get down 2 level of folders because cmake command will be executed in ledger-core-*/build folder
 cmake_parameters="-DCMAKE_BUILD_TYPE=$2 -DCMAKE_INSTALL_PREFIX=../../install -DPG_SUPPORT=ON"
 
-if [ -z "$3" ]; then
+if [ ! -z "$3" ]; then
     build_target="$build_target-$3"
 fi
 
