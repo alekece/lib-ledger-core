@@ -11,7 +11,7 @@ on:
             - '**.hpp'
 
 jobs:
-    build-linux-debug-core:
+    build-linux-debug:
         runs-on: ubuntu-latest
         steps:
           - uses: actions/checkout@v2
@@ -27,14 +27,17 @@ jobs:
           - name: Generate interfaces
             shell: bash
             run: ./tools/lc api
-          - run: mkdir -p ledger-core/build
-          - name: Prepare build
+          - name: Create build directory
+            run: mkdir -p ledger-core/build
+          - name: Configure CMake
             working-directory: ledger-core/build
             run: cmake -DCMAKE_BUILD_TYPE=Debug -DPG_SUPPORT=ON -DCMAKE_INSTALL_PREFIX=../../install -DSYS_OPENSSL=ON -DOPENSSL_SSL_LIBRARIES=/usr/lib/x86_64-linux-gnu -DOPENSSL_INCLUDE_DIR=/usr/include/openssl ..
-          - name: Build
+          - name: Build ledger-core
             working-directory: ledger-core/build
             run: make -j8
-          - name: Install
+          - name: Create install directory
+            run: mkdir -p install
+          - name: Install ledger-core
             working-directory: ledger-core/build
             run: make install
 
