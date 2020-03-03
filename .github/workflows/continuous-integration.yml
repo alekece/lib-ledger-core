@@ -11,19 +11,55 @@ on:
             - '**.hpp'
 
 jobs:
-    build-linux-debug:
-        runs-on: ubuntu-latest
+    # build-linux-debug:
+    #     runs-on: ubuntu-latest
+    #     steps:
+    #       - name: Setup
+    #         run: |
+    #           sudo apt-get update
+    #           sudo apt-get install -y libx11-xcb-dev
+    #           sudo apt-get install -y qt5-default libqt5websockets5 libqt5websockets5-dev
+    #           sudo apt-get install -y sqlite3 sqlite libsqlite3-dev
+    #           sudo apt-get install -y openjdk-8-jdk
+    #       - name: Checkout code
+    #         uses: actions/checkout@v2
+    #       - name: Checkout submodules
+    #         run: |
+    #           git submodule init
+    #           git submodule update --recursive
+    #       - name: Generate interfaces
+    #         shell: bash
+    #         run: ./tools/lc api
+    #       - name: Create build directory
+    #         run: mkdir -p ledger-core/build
+    #       - name: Configure CMake
+    #         working-directory: ledger-core/build
+    #         run: cmake -DCMAKE_BUILD_TYPE=Debug -DPG_SUPPORT=ON -DPostgreSQL_INCLUDE_DIR=/usr/include/postgresql -DCMAKE_INSTALL_PREFIX=../../install -DSYS_OPENSSL=ON -DOPENSSL_SSL_LIBRARIES=/usr/lib/x86_64-linux-gnu -DOPENSSL_INCLUDE_DIR=/usr/include/openssl ..
+    #       - name: Build ledger-core
+    #         working-directory: ledger-core/build
+    #         run: make -j8
+    #       - name: Create install directory
+    #         run: mkdir -p install
+    #       - name: Install ledger-core
+    #         working-directory: ledger-core/build
+    #         run: make install
+    build-macos:
+        runs-on: macOS-latest
         steps:
+          - name: Setup
+            run: |
+              brew update
+              brew cask install java8
+              brew cask info java8
+              export JAVA_HOME="$(/usr/libexec/java_home -v 1.8)"
+              brew install sbt
+              sbt sbtVersion
+              brew install qt5
+              export PATH="/usr/local/Cella/qt/5.*/bin:$PATH"
+              brew install postgresql
+              brew install sqlite
           - name: Checkout code
             uses: actions/checkout@v2
-          - name: Install dependencies
-            run: |
-              sudo apt-get update
-              sudo apt-get install -y libx11-xcb-dev
-              sudo apt-get install -y qt5-default libqt5websockets5 libqt5websockets5-dev
-              sudo apt-get install -y sqlite3 sqlite libsqlite3-dev
-              sudo apt-get install -y openjdk-8-jdk
-              sbt sbtVersion
           - name: Checkout submodules
             run: |
               git submodule init
@@ -35,7 +71,10 @@ jobs:
             run: mkdir -p ledger-core/build
           - name: Configure CMake
             working-directory: ledger-core/build
-            run: cmake -DCMAKE_BUILD_TYPE=Debug -DPG_SUPPORT=ON -DCMAKE_INSTALL_PREFIX=../../install -DSYS_OPENSSL=ON -DOPENSSL_SSL_LIBRARIES=/usr/lib/x86_64-linux-gnu -DOPENSSL_INCLUDE_DIR=/usr/include/openssl ..
+            run: |
+              version=`ls /usr/local/Cellar/qt | grep 5.`
+              export PATH="/usr/local/Cellar/qt/$version/bin:$PATH"
+              cmake -DCMAKE_BUILD_TYPE=Debug -DPG_SUPPORT=ON -DCMAKE_INSTALL_PREFIX=../../install -DCMAKE_PREFIX_PATH=/usr/local/Cellar/qt/$version ..
           - name: Build ledger-core
             working-directory: ledger-core/build
             run: make -j8
@@ -44,4 +83,8 @@ jobs:
           - name: Install ledger-core
             working-directory: ledger-core/build
             run: make install
+
+
+
+
 
