@@ -10,10 +10,14 @@ if [ "$1" == "Linux" ]; then
     sudo apt-get install -y libx11-xcb-dev
 
     echo "=====> Install PostgreSQL"
-    sudo apt-get install -y postgresql-9.6 libpq-dev postgresql-server-dev-all
+    sudo apt-get install -y postgresql libpq-dev postgresql-server-dev-all
 
     echo "=====> Install SQLite"
     sudo apt-get install -y sqlite3 sqlite libsqlite3-dev
+
+    ls -l ~/.sbt/boot
+
+    sbt sbtVersion
 
     if [ "$2" == "Debug" ]; then
         echo "=====> Install Qt5"
@@ -28,11 +32,12 @@ if [ "$1" == "Macos" ]; then
     echo "=====> Install SQLite"
     brew install sqlite
 
-    if [ "$2" == "Release" ]; then
-        echo "=====> Install SBT"
-        brew install sbt
-        sbt sbtVersion
-    fi
+    echo "=====> Install SBT"
+    brew install sbt
+
+    ls -l ~/.sbt/boot
+
+    sbt sbtVersion
 
     if [ "$2" == "Debug" ]; then
         echo "======> Install Qt5"
