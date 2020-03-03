@@ -24,8 +24,9 @@ jobs:
         - name: Setup environment
           shell: bash
           run: script/install_dependencies ${{ matrix.os.name }} ${{ matrix.mode }}
-        - name: Checkout repository
+        - name: Checkout
           uses: actions/checkout@v2
+        - name: Checkout submodule
           run: |
             git submodule init
             git submodule update --recursive
