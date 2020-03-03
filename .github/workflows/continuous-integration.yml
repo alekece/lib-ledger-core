@@ -49,9 +49,6 @@ jobs:
           - name: Setup
             run: |
               brew update
-              brew cask install java8
-              brew cask info java8
-              export JAVA_HOME="$(/usr/libexec/java_home -v 1.8)"
               brew install sbt
               sbt sbtVersion
               brew install qt5
@@ -73,7 +70,6 @@ jobs:
             working-directory: ledger-core/build
             run: |
               version=`ls /usr/local/Cellar/qt | grep 5.`
-              export PATH="/usr/local/Cellar/qt/$version/bin:$PATH"
               cmake -DCMAKE_BUILD_TYPE=Debug -DPG_SUPPORT=ON -DCMAKE_INSTALL_PREFIX=../../install -DCMAKE_PREFIX_PATH=/usr/local/Cellar/qt/$version ..
           - name: Build ledger-core
             working-directory: ledger-core/build
@@ -83,8 +79,3 @@ jobs:
           - name: Install ledger-core
             working-directory: ledger-core/build
             run: make install
-
-
-
-
-
