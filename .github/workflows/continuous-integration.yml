@@ -24,7 +24,7 @@ jobs:
       steps:
         - name: Setup environment
           shell: bash
-          run: script/install_dependencies ${{ matrix.os.name }} ${{ matrix.mode }}
+          run: script/install_dependencies.sh ${{ matrix.os.name }} ${{ matrix.mode }}
         - name: Checkout
           uses: actions/checkout@v2
         - name: Checkout submodule
