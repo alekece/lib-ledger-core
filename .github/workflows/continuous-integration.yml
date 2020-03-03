@@ -24,20 +24,20 @@ jobs:
           mode: [debug, release]
       runs-on: ${{ matrix.os.name }}
       env:
-        dependency-script: script/install_${{ matrix.os.alias}}_${{ matrix.mode }}_dependencies
+        dependency-script: **/script/install_${{ matrix.os.alias}}_${{ matrix.mode }}_dependencies
       steps:
         - name: Checkout repository
           uses: actions/checkout@v2
-        - name: Cache dependencies
-          uses: actions/cache@v1
-          id: dependency-cache
-          with:
-            path: ${{ matrix.os.dependency-directory }}
-            key: ${{ runner.os }}-dependencies-${{ hashFiles(env.dependency-script) }}
-            restore-key: |
-              ${{ runner.os }}-dependencies-
+        # - name: Cache dependencies
+        #   uses: actions/cache@v1
+        #   id: dependency-cache
+        #   with:
+        #     path: ${{ matrix.os.dependency-directory }}
+        #     key: ${{ runner.os }}-dependencies-${{ hashFiles(env.dependency-script) }}
+        #     restore-key: |
+        #       ${{ runner.os }}-dependencies-
         - name: Install dependencies
-          if: steps.dependency-cache.outputs.cache-hit != 'true'
+          # if: steps.dependency-cache.outputs.cache-hit != 'true'
           shell: bash
           run: ${{ env.dependency-script }}
         - name: Checkout submodules
