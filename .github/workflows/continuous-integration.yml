@@ -14,13 +14,15 @@ jobs:
     build-linux-debug:
         runs-on: ubuntu-latest
         steps:
-          - uses: actions/checkout@v2
+          - name: Checkout code
+            uses: actions/checkout@v2
           - name: Install dependencies
             run: |
-              sudo apt-get update
-              sudo apt-get install -y libx11-xcb-dev
-              sudo apt-get install -y qt5-default libqt5websockets5 libqt5websockets5-dev
-              sudo apt-get install -y sqlite3 sqlite libsqlite3-dev
+              apt-get update
+              apt-get install -y libx11-xcb-dev
+              apt-get install -y qt5-default libqt5websockets5 libqt5websockets5-dev
+              apt-get install -y sqlite3 sqlite libsqlite3-dev
+              sbt sbtVersion
           - name: Checkout submodules
             run: |
               git submodule init
