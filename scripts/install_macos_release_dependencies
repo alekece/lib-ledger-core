@@ -1,0 +1,3 @@
+brew install postgresql
+brew install sqlite
+brew install sbt
