@@ -24,7 +24,7 @@ jobs:
           mode: [debug, release]
       runs-on: ${{ matrix.os.name }}
       env:
-        dependency-script: **/script/install_${{ matrix.os.alias}}_${{ matrix.mode }}_dependencies
+        dependency-script: script/install_${{ matrix.os.alias}}_${{ matrix.mode }}_dependencies
       steps:
         - name: Checkout repository
           uses: actions/checkout@v2
