@@ -15,11 +15,11 @@ jobs:
         runs-on: ubuntu-latest
         steps:
           - uses: actions/checkout@v2
-          - name: Install dependencies
-            run: |
-              sudo apt-get install -y libx11-xcb libssl-dev tcl
-              sudo apt-get install -y qt5-default libqt5websockets5 libqt5websockets5-dev
-              sudo apt-get install -y slqlite3 sqlite libsqlit3-dev
+          # - name: Install dependencies
+          #   run: |
+          #     sudo apt-get install -y libx11-xcb-dev libssl-dev tcl
+          #     sudo apt-get install -y qt5-default libqt5websockets5 libqt5websockets5-dev
+          #     sudo apt-get install -y slqlite3 sqlite libsqlit3-dev
           - name: Checkout submodules
             run: |
               git submodule init
