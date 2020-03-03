@@ -1,13 +1,14 @@
 name: Continuous integration
 
-env:
-  source-files: ['**.cpp', '**.hpp']
-
 on:
     push:
-        path: $source-files
+        path:
+          - '**.cpp'
+          - '**.hpp'
     pull_request:
-        path:  $source-files
+        path:
+          - '**.cpp'
+          - '**.hpp'
 
 jobs:
     build:
