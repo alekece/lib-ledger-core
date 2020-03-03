@@ -12,7 +12,9 @@ on:
 
 jobs:
     build:
+      name: Build ${{ matrix.os.alias }} target in ${{ matrix.mode }} mode
       strategy:
+        fail-fast: false
         matrix:
           os: [
             { name: ubuntu-latest, alias: Linux },
