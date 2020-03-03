@@ -15,8 +15,6 @@ if [ "$1" == "Linux" ]; then
     echo "=====> Install SQLite"
     sudo apt-get install -y sqlite3 sqlite libsqlite3-dev
 
-    ls -l ~/.sbt/boot
-
     sbt sbtVersion
 
     if [ "$2" == "Debug" ]; then
@@ -34,9 +32,6 @@ if [ "$1" == "Macos" ]; then
 
     echo "=====> Install SBT"
     brew install sbt
-
-    ls -l ~/.sbt/boot
-
     sbt sbtVersion
 
     if [ "$2" == "Debug" ]; then
