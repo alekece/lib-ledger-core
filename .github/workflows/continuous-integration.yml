@@ -33,7 +33,7 @@ jobs:
           id: dependency-cache
           with:
             path: ${{ matrix.os.dependency-directory }}
-            key: ${{ runner.os }}-dependencies-${{ hashFiles('${{ env.dependency-script }}') }}
+            key: ${{ runner.os }}-dependencies-${{ hashFiles(env.dependency-script) }}
             restore-key: |
               ${{ runner.os }}-dependencies-
         - name: Install dependencies
