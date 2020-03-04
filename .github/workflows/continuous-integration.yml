@@ -1,13 +1,5 @@
 name: Continuous integration
 
-env:
-  os: [
-    { name: ubuntu-latest, alias: linux, type: unix, cache: { sbt: ~/.sbt, ivy: ~/.ivy2/cache }},
-    { name: macOS-latest, alias: macos, type: unix, cache: {sbt: ~/.sbt, ivy: ~/.ivy2/cache }}
-    # { name: windows-latest, alias: windows }
-  ]
-  mode: [debug, release]
-
 on:
     push:
         path:
@@ -24,8 +16,12 @@ jobs:
       strategy:
         fail-fast: false
         matrix:
-          os: ${{ env.os }}
-          mode: ${{ env.mode }}
+          os: [
+            { name: ubuntu-latest, alias: linux, type: unix, cache: { sbt: ~/.sbt, ivy: ~/.ivy2/cache }},
+            { name: macOS-latest, alias: macos, type: unix, cache: {sbt: ~/.sbt, ivy: ~/.ivy2/cache }}
+            # { name: windows-latest, alias: windows }
+          ]
+          mode: [debug, release]
       runs-on: ${{ matrix.os.name }}
       steps:
         - name: Checkout repository
@@ -80,8 +76,12 @@ jobs:
         fail-fast: false
         matrix:
           coin: [bitcoin, ripple, ethereum, tezos]
-          os: ${{ env.os }}
-          mode: ${{ env.mode }}
+          os: [
+            { name: ubuntu-latest, alias: linux, type: unix, cache: { sbt: ~/.sbt, ivy: ~/.ivy2/cache }},
+            { name: macOS-latest, alias: macos, type: unix, cache: {sbt: ~/.sbt, ivy: ~/.ivy2/cache }}
+            # { name: windows-latest, alias: windows }
+          ]
+          mode: [debug, release]
       runs-on: ${{ matrix.os.name }}
       needs: build-ledger-core
       steps:
