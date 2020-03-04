@@ -24,15 +24,14 @@ jobs:
           mode: [debug, release]
       runs-on: ${{ matrix.os.name }}
       env:
-        path:
-          script: .github/scripts/${{ matrix.os.alias }}/${{ matrix.mode }}
-          command: .github/scripts/${{ matrix.os.type }}
+        script: .github/scripts/${{ matrix.os.alias }}/${{ matrix.mode }}
+        command: .github/scripts/${{ matrix.os.type }}
       steps:
         - name: Checkout repository
           uses: actions/checkout@v2
         - name: Install dependencies
           shell: bash
-          run: ${{ env.script.path }}/install_dependencies
+          run: ${{ env.script }}/install_dependencies
         - name: Checkout submodules
           run: |
             git submodule init
@@ -52,25 +51,25 @@ jobs:
           run: tools/lc api
         - name: Create build directory
           shell: bash
-          run: ${{ env.path.command }}/create_directory ledger-core/build
+          run: ${{ env.command }}/create_directory ledger-core/build
         - name: Configure CMake
           shell: bash
-          run: ${{ env.path.script }}/configure_cmake ledger-core
+          run: ${{ env.script }}/configure_cmake ledger-core
         - name: Build library
           shell: bash
-          run: ${{ env.path.script }}/build_library ledger-core
+          run: ${{ env.script }}/build_library ledger-core
         # - name: Test library
         #   if: ${{ matrix.mode == 'debug' }}
         #   run: .github/scripts/test_${{ matrix.os.type }}_library ledger-core
         - name: Create install directory
           shell: bash
-          run: ${{ env.path.command }}/create_directory install
+          run: ${{ env.command }}/create_directory install
         - name: Install library
           shell: bash
-          run: ${{ env.path.script }}/install_library ledger-core
+          run: ${{ env.script }}/install_library ledger-core
         - name: Compress install directory
           shell: bash
-          run: ${{ env.path.command }}/compress_file install
+          run: ${{ env.command }}/compress_file install
         - name: Upload install.zip
           uses: actions/upload-artifact@v1
           with:
@@ -92,16 +91,15 @@ jobs:
       runs-on: ${{ matrix.os.name }}
       needs: build-ledger-core
       env:
-        path:
-          coin: ledger-core-${{ matrix.coin }}
-          script: .github/scripts/${{ matrix.os.alias }}/${{ matrix.mode }}
-          command: .github/scripts/${{ matrix.os.type }}
+        coin: ledger-core-${{ matrix.coin }}
+        script: .github/scripts/${{ matrix.os.alias }}/${{ matrix.mode }}
+        command: .github/scripts/${{ matrix.os.type }}
       steps:
         - name: Checkout repository
           uses: actions/checkout@v2
         - name: Install dependencies
           shell: bash
-          run: ${{ env.script.path }}/install_dependencies
+          run: ${{ env.script }}/install_dependencies
         - name: Checkout submodules
           run: |
             git submodule init
@@ -125,16 +123,16 @@ jobs:
             name: ledger-core-${{ matrix.os.alias }}-${{ matrix.os.mode}}
         - name: Uncompress install.zip
           shell: bash
-          run: ${{ env.path.command }}/uncompress_file install.zip
+          run: ${{ env.command }}/uncompress_file install.zip
         - name: Create build directory
           shell: bash
-          run: ${{ env.path.script }}/create_directory ${{ env.path.coin }}/build
+          run: ${{ env.script }}/create_directory ${{ env.coin }}/build
         - name: Configure CMake
           shell: bash
-          run: ${{ env.path.script }}/configure_cmake ${{ env.path.coin }}
+          run: ${{ env.script }}/configure_cmake ${{ env.coin }}
         - name: Build library
           shell: bash
-          run: ${{ env.path.script }}/build_library ${{ env.path.coin }}
+          run: ${{ env.script }}/build_library ${{ env.coin }}
         # - name: Test library
         #   if: ${{ matrix.mode == 'debug' }}
-        #   run: ${{ env.path.script }}/test_library ${{ env.path.coin }}
+        #   run: ${{ env.script }}/test_library ${{ env.coin }}
