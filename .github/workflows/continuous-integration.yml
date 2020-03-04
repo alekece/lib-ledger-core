@@ -51,7 +51,7 @@ jobs:
             path: ledger-core/idl/core.yaml
 
     generate-ledger-core-coin-bindings:
-      name: Generate ledger-core-${{ matrix.coin }} bindings
+      name: Generate ledger-core-${{ matrix.coin.name }} bindings
       runs-on: ubuntu-latest
       needs: generate-ledger-core-bindings
       strategy:
@@ -93,6 +93,7 @@ jobs:
           uses: actions/download-artifact@v1
           with:
             name: ledger-core-yaml
+            path: ledger-core/idl
         - name: Generate bindings
           shell: bash
           run: tools/lc project api ${{ matrix.coin.name }}
