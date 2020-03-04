@@ -93,18 +93,28 @@ install(
         spdlog
         sqlcipher
         ethash
-        ledger-test
-        ledger-qt-host
-        ledger-core-integration-test
-        mongoose
-        ssl
-        gtest
-        gtest_main
     EXPORT ledger-core
     ARCHIVE       DESTINATION lib/ledger-core
     LIBRARY       DESTINATION lib/ledger-core
     FRAMEWORK     DESTINATION lib/ledger-core
 )
+
+if(BUILD_TESTS)
+    install(
+        TARGETS
+            ledger-test
+            ledger-qt-host
+            ledger-core-integration-test
+            mongoose
+            ssl
+            gtest
+            gtest_main
+        EXPORT ledger-core
+        ARCHIVE       DESTINATION lib/ledger-core
+        LIBRARY       DESTINATION lib/ledger-core
+        FRAMEWORK     DESTINATION lib/ledger-core
+    )
+endif()
 
 if(PG_SUPPORT)
     install(
