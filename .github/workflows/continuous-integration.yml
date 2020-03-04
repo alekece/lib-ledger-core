@@ -154,7 +154,7 @@ jobs:
             path: install.zip
 
     build-ledger-core-coin:
-      name: Build ${{ env.coin }} on ${{ matrix.os.alias }} in ${{ matrix.mode }} mode
+      name: Build ledger-core-${{ matrix.coin.name }} on ${{ matrix.os.alias }} in ${{ matrix.mode }} mode
       strategy:
         fail-fast: false
         matrix:
