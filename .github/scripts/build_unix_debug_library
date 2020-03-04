@@ -1,1 +1,1 @@
-make -C $1/build -j -d
+make -C $1/build -j
