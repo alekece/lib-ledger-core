@@ -2,4 +2,4 @@ brew install postgresql
 brew install sqlite
 brew install sbt
 brew install qt5
-export PATH="/usr/local/Cellar/qt/5.*/bin:$PATH"
+# export PATH="/usr/local/Cellar/qt/5.*/bin:$PATH"
