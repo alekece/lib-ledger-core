@@ -1,0 +1,7 @@
+version=`ls /usr/local/Cellar/qt | grep 5.`
+
+cmake -DCMAKE_BUILD_TYPE=Debug \
+      -DPG_SUPPORT=ON \
+      -DBUILD_TESTS=ON \
+      -DCMAKE_PREFIX_PATH="/usr/local/Cellar/qt/$version" \
+      ..

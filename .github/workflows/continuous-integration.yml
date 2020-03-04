@@ -46,17 +46,25 @@ jobs:
         - name: Generate interfaces
           shell: bash
           run: tools/lc api
-        # - name: Configure CMake
-        #   shell: bash
-        #   run: scripts/configure_cmake.sh ${{ matrix.os.alias }} ${{ matrix.mode }}
-        # - name: Build library
-        #   working-directory: ledger-core/build
-        #   shell: bash
-        #   run: .github/scripts/build_${{ matrix.os.type }}_${{ matrix.mode }}
-        # - name: Install ledger-core
-        #   working-directory: ledger-core/build
-        #   run: make install
-        # - name: Test ledger-core
-        #   working-directory: ledger-core/build
-        #   run: make test
+        - name: Create build directory
+          shell: bash
+          run: .github/scripts/create_${{ matrix.os.type }}_directory ledger-core/build
+        - name: Configure CMake
+          shell: bash
+          working-directory: ledger-core/build
+          run: .github/scripts/cmake_${{ matrix.os.alias }}_${{ matrix.mode }}
+        - name: Build library
+          working-directory: ledger-core/build
+          shell: bash
+          run: .github/scripts/build_${{ matrix.os.type }}_${{ matrix.mode }}_library
+        - name: Test library
+          if: ${{ matrix.mode == debug }}
+          working-directory: ledger-core/build
+          run: .github/scripts/test_${{ matrix.os.type }}_library
+        - name: Create install directory
+          shell: bash
+          run: .github/scripts/create_${{ matrix.os.type }}_directory install
+        - name: Install library
+          working-directory: ledger-core/build
+          run: .github/scripts/install_${{ matrix.os.type }}_library
 
