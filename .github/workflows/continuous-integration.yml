@@ -17,8 +17,8 @@ jobs:
         fail-fast: false
         matrix:
           os: [
-            { name: ubuntu-latest, alias: linux, dependency-directory: /usr/local },
-            { name: macOS-latest, alias: macos, dependency-directory: /usr/local }
+            { name: ubuntu-latest, alias: linux, cache: { sbt: ~/.sbt }},
+            { name: macOS-latest, alias: macos, cache: {sbt: ~/.sbt }}
             # { name: windows-latest, alias: windows }
           ]
           mode: [debug, release]
@@ -33,10 +33,13 @@ jobs:
           run: |
             git submodule init
             git submodule update --recursive
-        # - name: Cache interfaces
-        #   uses: actions/cache@v1
-        #   with:
-        #     path: ledger-core/inc/core/api/
+        - name: Cache sbt
+          uses: actions/cache@v1
+          with:
+            path: ${{ matrix.os.cache.sbt }}
+            key: ${{ runner.os }}-sbt-${{ hasFiles(djinni/src/build.sbt)}}
+            restore-keys: |
+              ${{ runner.os }}-sbt-
         - name: Generate interfaces
           shell: bash
           run: tools/lc api
