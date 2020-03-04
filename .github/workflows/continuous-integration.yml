@@ -2,13 +2,13 @@ name: Continuous integration
 
 on:
     push:
-        path:
-          - '**.cpp'
-          - '**.hpp'
+        # path:
+        #   - '**.cpp'
+        #   - '**.hpp'
     pull_request:
-        path:
-          - '**.cpp'
-          - '**.hpp'
+        # path:
+        #   - '**.cpp'
+        #   - '**.hpp'
 
 jobs:
     build-ledger-core:
@@ -17,18 +17,22 @@ jobs:
         fail-fast: false
         matrix:
           os: [
-            { name: ubuntu-latest, alias: linux, type: unix, cache: { sbt: ~/.sbt, ivy: ~/.ivy2/cache }},
-            { name: macOS-latest, alias: macos, type: unix, cache: {sbt: ~/.sbt, ivy: ~/.ivy2/cache }}
+            { name: ubuntu-latest, alias: linux, type: unix, cache: { sbt: ~/.sbt, ivy: ~/.ivy2/cache }}
+            # { name: macOS-latest, alias: macos, type: unix, cache: {sbt: ~/.sbt, ivy: ~/.ivy2/cache }}
             # { name: windows-latest, alias: windows }
           ]
           mode: [debug, release]
       runs-on: ${{ matrix.os.name }}
+      env:
+        path:
+          script: .github/scripts/${{ matrix.os.alias }}/${{ matrix.mode }}
+          command: .github/scripts/${{ matrix.os.type }}
       steps:
         - name: Checkout repository
           uses: actions/checkout@v2
         - name: Install dependencies
           shell: bash
-          run: .github/scripts/install_${{ matrix.os.alias}}_${{ matrix.mode }}_dependencies
+          run: ${{ env.script.path }}/install_dependencies
         - name: Checkout submodules
           run: |
             git submodule init
@@ -48,27 +52,30 @@ jobs:
           run: tools/lc api
         - name: Create build directory
           shell: bash
-          run: .github/scripts/create_${{ matrix.os.type }}_directory ledger-core/build
+          run: ${{ env.path.command }}/create_directory ledger-core/build
         - name: Configure CMake
           shell: bash
-          run: .github/scripts/cmake_${{ matrix.os.alias }}_${{ matrix.mode }} ledger-core
+          run: ${{ env.path.script }}/configure_cmake ledger-core
         - name: Build library
           shell: bash
-          run: .github/scripts/build_${{ matrix.os.type }}_${{ matrix.mode }}_library ledger-core
+          run: ${{ env.path.script }}/build_library ledger-core
         # - name: Test library
         #   if: ${{ matrix.mode == 'debug' }}
         #   run: .github/scripts/test_${{ matrix.os.type }}_library ledger-core
         - name: Create install directory
           shell: bash
-          run: .github/scripts/create_${{ matrix.os.type }}_directory install
+          run: ${{ env.path.command }}/create_directory install
         - name: Install library
           shell: bash
-          run: .github/scripts/install_${{ matrix.os.type }}_library ledger-core
-        - name: Upload install directory
+          run: ${{ env.path.script }}/install_library ledger-core
+        - name: Compress install directory
+          shell: bash
+          run: ${{ env.path.command }}/compress_file install
+        - name: Upload install.zip
           uses: actions/upload-artifact@v1
           with:
             name: ledger-core-${{matrix.os.alias}}-${{ matrix.mode}}
-            path: install
+            path: install.zip
 
     build-ledger-core-xxx:
       name: Build ledger-core-${{ matrix.coin }} on ${{ matrix.os.alias }} in ${{ matrix.mode }} mode
@@ -77,19 +84,24 @@ jobs:
         matrix:
           coin: [bitcoin, ripple, ethereum, tezos]
           os: [
-            { name: ubuntu-latest, alias: linux, type: unix, cache: { sbt: ~/.sbt, ivy: ~/.ivy2/cache }},
-            { name: macOS-latest, alias: macos, type: unix, cache: {sbt: ~/.sbt, ivy: ~/.ivy2/cache }}
+            { name: ubuntu-latest, alias: linux, type: unix, cache: { sbt: ~/.sbt, ivy: ~/.ivy2/cache }}
+            # { name: macOS-latest, alias: macos, type: unix: cache: {sbt: ~/.sbt, ivy: ~/.ivy2/cache }}
             # { name: windows-latest, alias: windows }
           ]
           mode: [debug, release]
       runs-on: ${{ matrix.os.name }}
       needs: build-ledger-core
+      env:
+        path:
+          coin: ledger-core-${{ matrix.coin }}
+          script: .github/scripts/${{ matrix.os.alias }}/${{ matrix.mode }}
+          command: .github/scripts/${{ matrix.os.type }}
       steps:
         - name: Checkout repository
           uses: actions/checkout@v2
         - name: Install dependencies
           shell: bash
-          run: .github/scripts/install_${{ matrix.os.alias}}_${{ matrix.mode }}_dependencies
+          run: ${{ env.script.path }}/install_dependencies
         - name: Checkout submodules
           run: |
             git submodule init
@@ -107,19 +119,22 @@ jobs:
         - name: Generate interfaces
           shell: bash
           run: tools/lc project api ${{ matrix.coin }}
-        - name: Download install directory
+        - name: Download install.zip
           uses: actions/download-artifact@v1
           with:
-            name: ledger-core-${{ matrix.os.alias }}-${{ matrix.mode }}
+            name: ledger-core-${{ matrix.os.alias }}-${{ matrix.os.mode}}
+        - name: Uncompress install.zip
+          shell: bash
+          run: ${{ env.path.command }}/uncompress_file install.zip
         - name: Create build directory
           shell: bash
-          run: .github/scripts/create_${{ matrix.os.type }}_directory ledger-core-${{ matrix.coin }}/build
+          run: ${{ env.path.script }}/create_directory ${{ env.path.coin }}/build
         - name: Configure CMake
           shell: bash
-          run: .github/scripts/cmake_${{ matrix.os.alias }}_${{ matrix.mode }} ledger-core-${{ matrix.coin }}
+          run: ${{ env.path.script }}/configure_cmake ${{ env.path.coin }}
         - name: Build library
           shell: bash
-          run: .github/scripts/build_${{ matrix.os.type }}_${{ matrix.mode }}_library ledger-core-${{ matrix.coin }}
+          run: ${{ env.path.script }}/build_library ${{ env.path.coin }}
         # - name: Test library
         #   if: ${{ matrix.mode == 'debug' }}
-        #   run: .github/scripts/test_${{ matrix.os.type }}_library ledger-core
+        #   run: ${{ env.path.script }}/test_library ${{ env.path.coin }}
