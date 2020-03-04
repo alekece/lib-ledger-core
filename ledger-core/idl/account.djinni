@@ -39,7 +39,6 @@ Account = interface +c {
     # 32-bit integer
     getIndex(): i32;
 
-
     # Get the list of all operations.
     queryOperations(): OperationQuery;
 
