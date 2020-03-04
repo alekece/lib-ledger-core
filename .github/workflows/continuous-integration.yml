@@ -1,5 +1,13 @@
 name: Continuous integration
 
+env:
+  os: [
+    { name: ubuntu-latest, alias: linux, type: unix, cache: { sbt: ~/.sbt, ivy: ~/.ivy2/cache }},
+    { name: macOS-latest, alias: macos, type: unix, cache: {sbt: ~/.sbt, ivy: ~/.ivy2/cache }}
+    # { name: windows-latest, alias: windows }
+  ]
+  mode: [debug, release]
+
 on:
     push:
         path:
@@ -16,12 +24,8 @@ jobs:
       strategy:
         fail-fast: false
         matrix:
-          os: [
-            { name: ubuntu-latest, alias: linux, type: unix, cache: { sbt: ~/.sbt, ivy: ~/.ivy2/cache }},
-            { name: macOS-latest, alias: macos, type: unix, cache: {sbt: ~/.sbt, ivy: ~/.ivy2/cache }}
-            # { name: windows-latest, alias: windows }
-          ]
-          mode: [debug, release]
+          os: ${{ env.os }}
+          mode: ${{ env.mode }}
       runs-on: ${{ matrix.os.name }}
       steps:
         - name: Checkout repository
@@ -55,13 +59,67 @@ jobs:
         - name: Build library
           shell: bash
           run: .github/scripts/build_${{ matrix.os.type }}_${{ matrix.mode }}_library ledger-core
-        - name: Test library
-          if: ${{ matrix.mode == 'debug' }}
-          run: .github/scripts/test_${{ matrix.os.type }}_library ledger-core
+        # - name: Test library
+        #   if: ${{ matrix.mode == 'debug' }}
+        #   run: .github/scripts/test_${{ matrix.os.type }}_library ledger-core
         - name: Create install directory
           shell: bash
           run: .github/scripts/create_${{ matrix.os.type }}_directory install
         - name: Install library
           shell: bash
           run: .github/scripts/install_${{ matrix.os.type }}_library ledger-core
+        - name: Upload install directory
+          uses: actions/upload-artifact@v1
+          with:
+            name: ledger-core-${{matrix.os.alias}}-${{ matrix.mode}}
+            path: install
 
+    build-ledger-core-coin:
+      name: Build ledger-core-${{ matrix.coin }} on ${{ matrix.os.alias }} in ${{ matrix.mode }} mode
+      strategy:
+        fail-fast: false
+        matrix:
+          coin: [bitcoin, ripple, ethereum, tezos]
+          os: ${{ env.os }}
+          mode: ${{ env.mode }}
+      runs-on: ${{ matrix.os.name }}
+      needs: build-ledger-core
+      steps:
+        - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        shell: bash
+        run: .github/scripts/install_${{ matrix.os.alias}}_${{ matrix.mode }}_dependencies
+      - name: Checkout submodules
+        run: |
+          git submodule init
+          git submodule update --recursive
+      - name: Cache SBT ivy cache
+        uses: actions/cache@v1
+        with:
+          path: ${{ matrix.os.cache.ivy }}
+          key: ${{ runner.os }}-sbt-ivy-cache-${{ hashFiles('djinni/src/build.sbt') }}
+      - name: Cache SBT
+        uses: actions/cache@v1
+        with:
+          path: ${{ matrix.os.cache.sbt }}
+          key: ${{ runner.os }}-sbt-${{ hashFiles('djinni/src/build.sbt') }}
+      - name: Generate interfaces
+        shell: bash
+        run: tools/lc project api ${{ matrix.coin }}
+      - name: Download install directory
+        uses: actions/download-artifact@v1
+        with:
+          name: ledger-core-${{ matrix.os.alias }}-${{ matrix.mode }}
+      - name: Create build directory
+        shell: bash
+        run: .github/scripts/create_${{ matrix.os.type }}_directory ledger-core-${{ matrix.coin }}/build
+      - name: Configure CMake
+        shell: bash
+        run: .github/scripts/cmake_${{ matrix.os.alias }}_${{ matrix.mode }} ledger-core-${{ matrix.coin }}
+      - name: Build library
+        shell: bash
+        run: .github/scripts/build_${{ matrix.os.type }}_${{ matrix.mode }}_library ledger-core-${{ matrix.coin }}
+      # - name: Test library
+      #   if: ${{ matrix.mode == 'debug' }}
+      #   run: .github/scripts/test_${{ matrix.os.type }}_library ledger-core
