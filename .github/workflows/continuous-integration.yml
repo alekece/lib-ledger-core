@@ -58,7 +58,7 @@ jobs:
           shell: bash
           run: .github/scripts/build_${{ matrix.os.type }}_${{ matrix.mode }}_library
         - name: Test library
-          if: ${{ matrix.mode == debug }}
+          if: ${{ matrix.mode == 'debug' }}
           working-directory: ledger-core/build
           run: .github/scripts/test_${{ matrix.os.type }}_library
         - name: Create install directory
