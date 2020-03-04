@@ -74,7 +74,7 @@ jobs:
             name: ledger-core-${{matrix.os.alias}}-${{ matrix.mode}}
             path: install
 
-    build-ledger-core-coin:
+    build-ledger-core-xxx:
       name: Build ledger-core-${{ matrix.coin }} on ${{ matrix.os.alias }} in ${{ matrix.mode }} mode
       strategy:
         fail-fast: false
