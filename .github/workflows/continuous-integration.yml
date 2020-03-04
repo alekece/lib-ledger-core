@@ -51,20 +51,16 @@ jobs:
           run: .github/scripts/create_${{ matrix.os.type }}_directory ledger-core/build
         - name: Configure CMake
           shell: bash
-          working-directory: ledger-core/build
-          run: .github/scripts/cmake_${{ matrix.os.alias }}_${{ matrix.mode }}
+          run: .github/scripts/cmake_${{ matrix.os.alias }}_${{ matrix.mode }} ledger-core
         - name: Build library
-          working-directory: ledger-core/build
           shell: bash
-          run: .github/scripts/build_${{ matrix.os.type }}_${{ matrix.mode }}_library
+          run: .github/scripts/build_${{ matrix.os.type }}_${{ matrix.mode }}_library ledger-core
         - name: Test library
           if: ${{ matrix.mode == 'debug' }}
-          working-directory: ledger-core/build
-          run: .github/scripts/test_${{ matrix.os.type }}_library
+          run: .github/scripts/test_${{ matrix.os.type }}_library ledger-core
         - name: Create install directory
           shell: bash
           run: .github/scripts/create_${{ matrix.os.type }}_directory install
         - name: Install library
-          working-directory: ledger-core/build
-          run: .github/scripts/install_${{ matrix.os.type }}_library
+          run: .github/scripts/install_${{ matrix.os.type }}_library ledger-core
 
