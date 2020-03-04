@@ -47,7 +47,7 @@ jobs:
           uses: actions/cache@v1
           with:
             id: cache-yaml
-            path: ledger-core/idl/core.YAML
+            path: ledger-core/idl/core.yaml
             key: ledger-core-yaml-${{ hashFiles('ledger-core/idl/*.djinni') }}
         - name: Generate bindings
           if: steps.cache-api.outputs.cache-hit != 'true' || steps.cache-jni.outputs.cache-hit != 'true' || steps.cache-yaml.outputs.cache-hit != 'true'
