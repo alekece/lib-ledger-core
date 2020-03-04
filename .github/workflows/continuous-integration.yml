@@ -62,6 +62,8 @@ jobs:
             { name: ripple, cache: 'ledger-core-ripple/idl/**/*.djinni' },
             { name: tezos, cache: 'ledger-core-tezos/idl/**/*.djinni' }
           ]
+      env:
+        coin: ledger-core-${{ matrix.coin.name }}
       steps:
         - name: Checkout repository
           uses: actions/checkout@v2
@@ -82,8 +84,8 @@ jobs:
         - name: Cache API
           uses: actions/cache@v1
           with:
-            path: ledger-core-${{ matrix.coin.name }}/inc/${{ matrix.coin.name }}/api
-            key: ledger-core-${{ matrix.coin.name }}-api-${{ hashFiles(matrix.coin.cache) }}
+            path: ${{ env.coin }}/inc/${{ matrix.coin.name }}/api
+            key: ${{ env.coin }}-api-${{ hashFiles(matrix.coin.cache) }}
         - name: Download core.yaml
           uses: actions/download-artifact@v1
           with:
@@ -152,11 +154,16 @@ jobs:
             path: install.zip
 
     build-ledger-core-coin:
-      name: Build ledger-core-${{ matrix.coin }} on ${{ matrix.os.alias }} in ${{ matrix.mode }} mode
+      name: Build ${{ env.coin }} on ${{ matrix.os.alias }} in ${{ matrix.mode }} mode
       strategy:
         fail-fast: false
         matrix:
-          coin: [bitcoin, ripple, ethereum, tezos]
+          coin: [
+            { name: bitcoin, cache: 'ledger-core-bitcoin/idl/**/*.djinni' },
+            { name: ethereum, cache: 'ledger-core-ethereum/idl/**/*.djinni' },
+            { name: ripple, cache: 'ledger-core-ripple/idl/**/*.djinni' },
+            { name: tezos, cache: 'ledger-core-tezos/idl/**/*.djinni' }
+          ]
           os: [
             { name: ubuntu-latest, alias: linux, type: unix, cache: { sbt: ~/.sbt, ivy: ~/.ivy2/cache }}
             # { name: macOS-latest, alias: macos, type: unix: cache: {sbt: ~/.sbt, ivy: ~/.ivy2/cache }}
@@ -166,7 +173,7 @@ jobs:
       runs-on: ${{ matrix.os.name }}
       needs: build-ledger-core
       env:
-        coin: ledger-core-${{ matrix.coin }}
+        coin: ledger-core-${{ matrix.coin.name }}
         script: .github/scripts/${{ matrix.os.alias }}/${{ matrix.mode }}
         command: .github/scripts/${{ matrix.os.type }}
       steps:
@@ -179,6 +186,16 @@ jobs:
           run: |
             git submodule init
             git submodule update --recursive
+        - name: Cache ledger-core API
+          uses: actions/cache@v1
+          with:
+            path: ledger-core/inc/core/api
+            key: ledger-core-api-${{ hashFiles('ledger-core/idl/**/*.djinni') }}
+        - name: Cache ${{ env.coin }} API
+          uses: actions/cache@v1
+          with:
+            path: ${{ env.coin }}/inc/${{ matrix.coin.name }}/api
+            key:
         - name: Download install.zip
           uses: actions/download-artifact@v1
           with:
