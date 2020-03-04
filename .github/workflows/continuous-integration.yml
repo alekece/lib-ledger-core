@@ -17,8 +17,8 @@ jobs:
         fail-fast: false
         matrix:
           os: [
-            { name: ubuntu-latest, alias: linux, cache: { sbt: ~/.sbt }},
-            { name: macOS-latest, alias: macos, cache: {sbt: ~/.sbt }}
+            { name: ubuntu-latest, alias: linux, cache: { sbt: ~/.sbt, ivy: ~/.ivy2/cache }},
+            { name: macOS-latest, alias: macos, cache: {sbt: ~/.sbt, ivy: ~/.ivy2/cache }}
             # { name: windows-latest, alias: windows }
           ]
           mode: [debug, release]
@@ -33,13 +33,16 @@ jobs:
           run: |
             git submodule init
             git submodule update --recursive
-        - name: Cache sbt
+        - name: Cache SBT ivy cache
+          uses: actions/cache@v1
+          with:
+            path: ${{ matrix.os.cache.ivy }}
+            key: ${{ runner.os }}-sbt-ivy-cache-${{ hashFiles('djinni/src/built.sbt') }}
+        - name: Cache SBT
           uses: actions/cache@v1
           with:
             path: ${{ matrix.os.cache.sbt }}
             key: ${{ runner.os }}-sbt-${{ hashFiles('djinni/src/build.sbt') }}
-            restore-keys: |
-              ${{ runner.os }}-sbt-
         - name: Generate interfaces
           shell: bash
           run: tools/lc api
