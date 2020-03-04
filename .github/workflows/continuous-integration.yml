@@ -34,30 +34,68 @@ jobs:
         - name: Cache API
           uses: actions/cache@v1
           with:
-            id: cache-api
             path: ledger-core/inc/core/api
-            key: ledger-core-api-${{ hashFiles('ledger-core/idl/*.djinni') }}
+            key: ledger-core-api-${{ hashFiles('ledger-core/idl/**/*.djinni') }}
         - name: Cache JNI
           uses: actions/cache@v1
           with:
-            id: cache-jni
             path: ledger-core/inc/core/jni
-            key: ledger-core-jni-${{ hashFiles('ledger-core/idl/*.djinni') }}
-        - name: Cache YAML
-          uses: actions/cache@v1
-          with:
-            id: cache-yaml
-            path: ledger-core/idl/core.yaml
-            key: ledger-core-yaml-${{ hashFiles('ledger-core/idl/*.djinni') }}
+            key: ledger-core-jni-${{ hashFiles('ledger-core/idl/**/*.djinni') }}
         - name: Generate bindings
-          if: steps.cache-api.outputs.cache-hit != 'true' || steps.cache-jni.outputs.cache-hit != 'true' || steps.cache-yaml.outputs.cache-hit != 'true'
           shell: bash
           run: tools/lc api
+        - name: Upload core.yaml
+          uses: actions/upload-artifact@v1
+          with:
+            key: ledger-core-yaml
+            path: ledger-core/idl/core.yaml
 
-    # generate-legder-core-xxx-bindings:
-    #   name: Generate ledger-core-${{ matrix.coin }} bindings
-    #   runs-on: ubuntu-latest
-
+    generate-ledger-core-coin-bindings:
+      name: Generate ledger-core-${{ matrix.coin }} bindings
+      runs-on: ubuntu-latest
+      needs: generate-ledger-core-bindings
+      strategy:
+        matrix:
+          coin: [
+            { name: bitcoin, cache: 'ledger-core-bitcoin/idl/**/*.djinni' },
+            { name: ethereum, cache: 'ledger-core-ethereum/idl/**/*.djinni' },
+            { name: ripple, cache: 'ledger-core-ripple/idl/**/*.djinni' },
+            { name: tezos, cache: 'ledger-core-tezos/idl/**/*.djinni' }
+          ]
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v2
+        - name: Checkout submodules
+          run: |
+            git submodule init
+            git submodule update --recursive
+        - name: Cache SBT ivy cache
+          uses: actions/cache@v1
+          with:
+            path: ~/.ivy2/cache
+            key: sbt-ivy-cache-${{ hashFiles('djinni/src/build.sbt') }}
+        - name: Cache SBT
+          uses: actions/cache@v1
+          with:
+            path: ~/.sbt
+            key: sbt-${{ hashFiles('djinni/src/build.sbt') }}
+        - name: Cache API
+          uses: actions/cache@v1
+          with:
+            path: ledger-core-${{ matrix.coin.name }}/inc/${{ matrix.coin.name }}/api
+            key: ledger-core-${{ matrix.coin.name }}-api-${{ hashFiles(matrix.coin.cache) }}
+        - name: Cache JNI
+          uses: actions/cache@v1
+          with:
+            path: ledger-core-${{ matrix.coin.name }}/inc/${{ matrix.coin.name }}/jni
+            key: ledger-core-${{ matrix.coin.name }}-jni-${{ hashFiles(matrix.coin.cache) }}
+        - name: Upload core.yaml
+          uses: actions/download-artifact@v1
+          with:
+            name: ledger-core-yaml
+        - name: Generate bindings
+          shell: bash
+          run: tools/lc project api ${{ matrix.coin.name }}
 
     # build-ledger-core:
     #   name: Build ledger-core on ${{ matrix.os.alias }} in ${{ matrix.mode }} mode
