@@ -62,5 +62,6 @@ jobs:
           shell: bash
           run: .github/scripts/create_${{ matrix.os.type }}_directory install
         - name: Install library
+          shell: bash
           run: .github/scripts/install_${{ matrix.os.type }}_library ledger-core
 
