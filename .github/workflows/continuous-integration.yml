@@ -216,7 +216,7 @@ jobs:
         - name: Download install.zip
           uses: actions/download-artifact@v1
           with:
-            name: ledger-core-${{ matrix.os.alias }}-${{ matrix.os.mode}}-install
+            name: ledger-core-${{ matrix.os.alias }}-${{ matrix.mode}}-install
 
         - name: Uncompress install.zip
           shell: bash
