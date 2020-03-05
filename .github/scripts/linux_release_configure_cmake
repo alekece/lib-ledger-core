@@ -1,7 +1,5 @@
-cmake -DCMAKE_BUILD_TYPE=Release \
-      -DPG_SUPPORT=ON \
-      -DBUILD_TESTS=OFF \
-      -DCMAKE_PREFIX=$HOME \
-      -DCMAKE_INSTALL_PREFIX=install \
-      -DSYS_OPENSSL=ON -DOPENSSL_SSL_LIBRARIES=/usr/lib/x86_64-linux-gnu -DOPENSSL_INCLUDE_DIR=/usr/include/DSYS_OPENSSL \
-      -S $1 -B $1/build
+echo -DCMAKE_BUILD_TYPE=Release \
+     -DPG_SUPPORT=ON \
+     -DBUILD_TESTS=OFF \
+     -DCMAKE_PREFIX=$HOME \
+     -DSYS_OPENSSL=ON -DOPENSSL_SSL_LIBRARIES=/usr/lib/x86_64-linux-gnu -DOPENSSL_INCLUDE_DIR=/usr/include/DSYS_OPENSSL
