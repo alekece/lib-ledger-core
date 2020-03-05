@@ -165,7 +165,7 @@ jobs:
         - name: Upload install.zip
           uses: actions/upload-artifact@v1
           with:
-            name: ledger-core-${{matrix.os.alias}}-${{ matrix.mode}}-install
+            name: ledger-core-${{matrix.os.alias}}-${{ matrix.mode}}-install.zip
             path: install.zip
 
     build-ledger-core-coin:
@@ -216,11 +216,11 @@ jobs:
         - name: Download install.zip
           uses: actions/download-artifact@v1
           with:
-            name: ledger-core-${{ matrix.os.alias }}-${{ matrix.mode}}-install
+            name: ledger-core-${{ matrix.os.alias }}-${{ matrix.mode}}-install.zip
 
         - name: Uncompress install.zip
           shell: bash
-          run: unzip install.zip
+          run: unzip ledger-core-${{ matrix.os.alias }}-${{ matrix.mode}}-install.zip
 
         - name: Create build directory
           shell: bash
