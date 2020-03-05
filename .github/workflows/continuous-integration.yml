@@ -24,7 +24,7 @@ jobs:
           uses: actions/cache@v1
           with:
             path: ~/.sbt
-            key: $sbt-${{ hashFiles('djinni/src/**') }}
+            key: sbt-${{ hashFiles('djinni/src/**') }}
 
         - name: Cache generated API
           uses: actions/cache@v1
@@ -48,18 +48,13 @@ jobs:
             path: ledger-core/idl/core.yaml
 
     generate-ledger-core-coin-bindings:
-      name: Generate ledger-core-${{ matrix.coin.name }} bindings
+      name: Generate ledger-core-${{ matrix.coin }} bindings
 
       runs-on: ubuntu-latest
       needs: generate-ledger-core-bindings
       strategy:
         matrix:
-          coin: [
-            { name: bitcoin, idl-path: 'ledger-core-bitcoin/idl/**/*.djinni' },
-            { name: ethereum, idl-path: 'ledger-core-ethereum/idl/**/*.djinni' },
-            { name: ripple, idl-path: 'ledger-core-ripple/idl/**/*.djinni' },
-            { name: tezos, idl-path: 'ledger-core-tezos/idl/**/*.djinni' }
-          ]
+          coin: [bitcoin, ethereum, ripple, tezos]
 
       steps:
         - name: Checkout repository
@@ -83,7 +78,7 @@ jobs:
           uses: actions/cache@v1
           with:
             path: ledger-core-${{ matrix.coin }}/inc/${{ matrix.coin }}/api
-            key: ledger-core-${{ matrix.coin }}-api-${{ hashFiles('ledger-core-${{ matrix.coin }}/idl/**') }}
+            key: ledger-core-${{ matrix.coin }}-api-${{ hashFiles(format('ledger-core-{0}/idl/**', matrix.coin)) }}
 
         - name: Download core.yaml
           uses: actions/download-artifact@v1
