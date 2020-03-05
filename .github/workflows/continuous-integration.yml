@@ -2,11 +2,9 @@ name: Continuous integration
 
 on: [push, pull_request]
 
-env:
-  cache-sbt-path: ~/.sbt
-  cache-sbt-key: sbt-${{ hashFiles('djinni/src/**') }}
-  cache-core-key: ledger-core-api-${{ hashFiles('ledger-core/idle/**/*.djinni') }}
-  artifact-core-name: ledger-core-bindings
+global:
+  script:
+    path: .github/scripts
 
 jobs:
     generate-ledger-core-bindings:
@@ -19,9 +17,8 @@ jobs:
           uses: actions/checkout@v2
 
         - name: Checkout submodules
-          run: |
-            git submodule init
-            git submodule update --recursive
+          shell: bash
+          run: ${{ global.script.path }}/checkout_submodules
 
         - name: Cache SBT ivy cache
           uses: actions/cache@v1
