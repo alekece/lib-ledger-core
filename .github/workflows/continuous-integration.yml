@@ -52,7 +52,7 @@ jobs:
         - name: Upload core.yaml
           uses: actions/upload-artifact@v1
           with:
-            name: ${{ artifact-core-name }}
+            name: ${{ env.artifact-core-name }}
             path: ledger-core/idl/core.yaml
 
     generate-ledger-core-coin-bindings:
