@@ -165,7 +165,7 @@ jobs:
         - name: Upload install.zip
           uses: actions/upload-artifact@v1
           with:
-            name: ledger-core-${{matrix.os.alias}}-${{ matrix.mode}}-install.zip
+            name: ledger-core-${{matrix.os.alias}}-${{ matrix.mode}}-install
             path: install.zip
 
     build-ledger-core-coin:
@@ -187,7 +187,6 @@ jobs:
 
       env:
         script-suffix: .github/scripts/${{ matrix.os.alias }}_${{ matrix.mode }}
-        coin-path: ledger-core-${{ matrix.coin }}
 
       steps:
         - name: Checkout repository
@@ -210,21 +209,21 @@ jobs:
         - name: Cache generated ledger-core-${{ matrix.coin }} API
           uses: actions/cache@v1
           with:
-            path: ${{ env.coin-path }}/inc/${{ matrix.coin }}/api
-            key: ${{ env.coin-path }}-api-${{ hashFiles(format('ledger-core-{0}/idl/**', matrix.coin)) }}
+            path: ledger-core-${{ matrix.coin }}/inc/${{ matrix.coin }}/api
+            key: ledger-core-${{ matrix.coin }}-api-${{ hashFiles(format('ledger-core-{0}/idl/**', matrix.coin)) }}
 
         - name: Download install.zip
           uses: actions/download-artifact@v1
           with:
-            name: ledger-core-${{ matrix.os.alias }}-${{ matrix.mode}}-install.zip
+            name: ledger-core-${{ matrix.os.alias }}-${{ matrix.mode}}-install
 
         - name: Uncompress install.zip
           shell: bash
-          run: unzip ledger-core-${{ matrix.os.alias }}-${{ matrix.mode}}-install.zip
+          run: unzip install.zip
 
         - name: Create build directory
           shell: bash
-          run: mkdir -p ${{ env.coin-path }}/build
+          run: mkdir -p ledger-core-${{ matrix.coin }}/build
 
         - name: Configure CMake
           shell: bash
