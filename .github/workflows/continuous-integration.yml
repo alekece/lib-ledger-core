@@ -200,13 +200,7 @@ jobs:
           shell: bash
           run: git submodule update --init --recursive
 
-        - name: Cache generated ledger-core API
-          uses: actions/cache@v1
-          with:
-            path: ledger-core/inc/core/api
-            key: ledger-core-api-${{ hashFiles('ledger-core/idl/**') }}
-
-        - name: Cache generated ledger-core-${{ matrix.coin }} API
+        - name: Cache generated API
           uses: actions/cache@v1
           with:
             path: ledger-core-${{ matrix.coin }}/inc/${{ matrix.coin }}/api
@@ -216,6 +210,7 @@ jobs:
           uses: actions/download-artifact@v1
           with:
             name: ledger-core-${{ matrix.os.alias }}-${{ matrix.mode}}-install
+            path: .
 
         - name: Uncompress install.zip
           shell: bash
