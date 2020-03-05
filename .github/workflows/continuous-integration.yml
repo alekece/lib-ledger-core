@@ -154,7 +154,7 @@ jobs:
           shell: bash
           run: cmake --install ledger-core/build
 
-         - name: Compress install directory
+        - name: Compress install directory
           shell: bash
           run: zip -r install
         - name: Upload install.zip
