@@ -1,57 +1,63 @@
 name: Continuous integration
 
-on:
-    push:
-        # path:
-        #   - '**.cpp'
-        #   - '**.hpp'
-    pull_request:
-        # path:
-        #   - '**.cpp'
-        #   - '**.hpp'
+on: [push, pull_request]
+
+env:
+  cache-sbt-path: ~/.sbt
+  cache-sbt-key: sbt-${{ hashFiles('djinni/src/**') }}
+  cache-core-key: ledger-core-api-${{ hashFiles('ledger-core/idle/**/*.djinni') }}
+  artifact-core-name: ledger-core-bindings
 
 jobs:
     generate-ledger-core-bindings:
       name: Generate ledger-core bindings
+
       runs-on: ubuntu-latest
+
       steps:
         - name: Checkout repository
           uses: actions/checkout@v2
+
         - name: Checkout submodules
           run: |
             git submodule init
             git submodule update --recursive
+
         - name: Cache SBT ivy cache
           uses: actions/cache@v1
           with:
             path: ~/.ivy2/cache
-            key: sbt-ivy-cache-${{ hashFiles('djinni/src/build.sbt') }}
+            key: ${{ env.sbt-key }}
         - name: Cache SBT
           uses: actions/cache@v1
           with:
             path: ~/.sbt
-            key: sbt-${{ hashFiles('djinni/src/build.sbt') }}
-        - name: Cache API
+            key: ${{ env.cache-sbt-key }}
+
+        - name: Cache generated API
           uses: actions/cache@v1
           with:
             path: ledger-core/inc/core/api
-            key: ledger-core-api-${{ hashFiles('ledger-core/idl/**/*.djinni') }}
-        - name: Cache JNI
+            key: ${{ env.cache-core-key }}
+        - name: Cache generated JNI
           uses: actions/cache@v1
           with:
             path: ledger-core/inc/core/jni
-            key: ledger-core-jni-${{ hashFiles('ledger-core/idl/**/*.djinni') }}
+            key: ${{ env.cache-core-key }}
+
         - name: Generate bindings
           shell: bash
           run: tools/lc api
+
         - name: Upload core.yaml
           uses: actions/upload-artifact@v1
           with:
-            name: ledger-core-yaml
+            name: ${{ artifact-core-name }}
             path: ledger-core/idl/core.yaml
 
     generate-ledger-core-coin-bindings:
       name: Generate ledger-core-${{ matrix.coin.name }} bindings
+
       runs-on: ubuntu-latest
       needs: generate-ledger-core-bindings
       strategy:
@@ -62,15 +68,19 @@ jobs:
             { name: ripple, cache: 'ledger-core-ripple/idl/**/*.djinni' },
             { name: tezos, cache: 'ledger-core-tezos/idl/**/*.djinni' }
           ]
+
       env:
         coin: ledger-core-${{ matrix.coin.name }}
+
       steps:
         - name: Checkout repository
           uses: actions/checkout@v2
+
         - name: Checkout submodules
           run: |
             git submodule init
             git submodule update --recursive
+
         - name: Cache SBT ivy cache
           uses: actions/cache@v1
           with:
