@@ -244,7 +244,7 @@ jobs:
   #       run: .github/scripts/build ${{ env.parameters }}
 
   build-ledger-core-debug:
-    name: Build ledger-core with ${{ matrix.target.runner }} runner for ${{ matrix.target.name }} target in debug mode
+    name: Build ledger-core with ${{ matrix.target.runner }} runner for ${{ join(matrix.target.parameters, '-') }} target in debug mode
 
     runs-on: ${{ matrix.target.runner }}
     needs: generate-ledger-core-bindings
@@ -253,12 +253,9 @@ jobs:
       fail-fast: false
       matrix:
         target: [
-          { runner: ubuntu-latest, os: linux, name: linux},
-          { runner: macOS-latest, os: macos, name: macos}
+          { runner: ubuntu-latest, parameters: linux},
+          { runner: macOS-latest, parameters: macos}
         ]
-
-    env:
-      parameters: ${{ matrix.target.os }} debug ${{ matrix.target.name }}
 
     steps:
       - name: Checkout repository
@@ -266,7 +263,7 @@ jobs:
 
       - name: Install dependencies
         shell: bash
-        run: .github/scripts/setup ${{ env.parameters }}
+        run: .github/scripts/setup debug ${{ matrix.target.parameters }}
 
       - name: Checkout submodules
         shell: bash
@@ -284,12 +281,15 @@ jobs:
 
       - name: Configure CMake
         shell: bash
-        run: cmake -S ledger-core -B ledger-core/build $(.github/scripts/cmake ${{ env.parameters }}) -DCMAKE_INSTALL_PREFIX=install
+        run: |
+          parameters=$(.github/scripts/cmake debug ${{ matrix.target.parameters }}) -DCMAKE_INSTALL_PREFIX=install
+          echo $parameters
+          cmake -S ledger-core -B ledger-core/build $parameters -DCMAKE_INSTALL_PREFIX=install
 
       - name: Build library
         shell: bash
         working-directory: ledger-core/build
-        run: .github/scripts/build ${{ env.parameters }}
+        run: .github/scripts/build debug ${{ matrix.target.parameters }}
 
       - name: Test library
         shell: bash
@@ -311,11 +311,11 @@ jobs:
       - name: Upload install.zip
         uses: actions/upload-artifact@v1
         with:
-          name: ledger-core-${{ matrix.target.runner }}-debug-${{ join(matrix.target.name, '-') }}-install
+          name: ledger-core-${{ matrix.target.runner }}-debug-${{ join(matrix.target.parameters, '-') }}-install
           path: install.zip
 
   build-ledger-core-coin-debug:
-    name: Build ledger-core-${{ matrix.coin }} with ${{ matrix.target.runner }} runner for ${{ matrix.target.name }} target in debug mode
+    name: Build ledger-core-${{ matrix.coin }} with ${{ matrix.target.runner }} runner for ${{ join(matrix.target.name, '-') }} target in debug mode
 
     runs-on: ${{ matrix.target.runner }}
     needs: build-ledger-core-debug
@@ -325,12 +325,12 @@ jobs:
       matrix:
         coin: [bitcoin, ripple, ethereum, tezos]
         target: [
-          { runner: ubuntu-latest, os: linux, name: linux},
-          { runner: macOS-latest, os: macos, name: macos}
+          { runner: ubuntu-latest, parameters: linux},
+          { runner: macOS-latest, parameters: macos}
         ]
 
     env:
-      parameters: ${{ matrix.target.os }} debug ${{ matrix.target.name }}
+      parameters: debug ${{ matrix.target.parameters }}
 
     steps:
       - name: Checkout repository
@@ -338,7 +338,7 @@ jobs:
 
       - name: Install dependencies
         shell: bash
-        run: .github/scripts/setup ${{ env.parameters }}
+        run: .github/scripts/setup debug ${{ matrix.parameters }}
 
       - name: Checkout submodules
         shell: bash

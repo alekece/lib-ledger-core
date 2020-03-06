@@ -1,7 +1,7 @@
-# $1 platform <linux|macos|windows>
-# $2 mode <release|debug>
-# $3 target
-# $4 target parameters
+MODE=$1
+OS=$2
+TARGET=$3
+EXTRA=${@:3:#@}
 
 function setup_linux {
     sudo apt-get update
@@ -9,7 +9,11 @@ function setup_linux {
     sudo apt-get install -y sqlite3 sqlite libsqlite3-dev
     sudo apt-get install -y postgresql libpq-dev postgresql-server-dev-all
 
-    if [ "$3" == "android" ]; then
+    if [ "$MODE" == "debug" ]; then
+        sudo apt-get install -y qt5-default libqt5websockets5 libqt5websockets5-dev
+    fi
+
+    if [ "$TARGET" == "android" ]; then
         # This is useful for SQLCipher/config.guess
         export LIBC=gnu
 
@@ -18,11 +22,11 @@ function setup_linux {
         export JAVA_HOME="$(/usr/libexec/java_home -v 1.8)" || export JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64/"
         export POLLY_ROOT=toolchains/polly
 
-        if [ "$4" == "armeabi-v7a" ]; then
+        if [ "$EXTRA" == "armeabi-v7a" ]; then
             export TOOLCHAIN_NAME="android-ndk-r18b-api-21-armeabi-v7a-clang-libcxx"
-        elif [ "$4" == "arm64-v8a" ]; then
+        elif [ "$EXTRA" == "arm64-v8a" ]; then
             export TOOLCHAIN_NAME="android-ndk-r18b-api-21-arm64-v8a-clang-libcxx"
-        elif [ "$4" == "x86_64" ]; then
+        elif [ "$EXTRA" == "x86_64" ]; then
             export TOOLCHAIN_NAME="android-ndk-r18b-api-21-x86-64-clang-libcxx"
         else
             export TOOLCHAIN_NAME="android-ndk-r18b-api-21-x86-clang-libcxx"
@@ -35,22 +39,22 @@ function setup_macos {
     brew install sqlite
     brew install sbt
 
-    if [ "$2" == "debug" ]; then
+    if [ "$MODE" == "debug" ]; then
         brew install qt5
 
         # Get accurate qt5 version
         export PATH="/usr/local/Cellar/qt/$(ls /usr/local/Cellar/qt | grep 5.)/bin:$PATH"
     fi
 
-    if [ "$3" == "ios" ]; then
+    if [ "$TARGET" == "ios" ]; then
         export POLLY_IOS_BUNDLE_IDENTIFIER='com.ledger.core'
         # Needed for nocodesign toolchains
         export XCODE_XCCONFIG_FILE=$POLLY_ROOT/scripts/NoCodeSign.xcconfig
 
-        if [ "$4" == "armv7" ]; then
+        if [ "$EXTRA" == "armv7" ]; then
             export TOOLCHAIN_NAME='ios-nocodesign-11-2-dep-9-3-armv7'
             export OSX_SYSROOT=iphoneos
-        elif [ "$4" == "arm64" ]; then
+        elif [ "$EXTRA" == "arm64" ]; then
             export TOOLCHAIN_NAME='ios-nocodesign-11-2-dep-9-3-arm64'
             export OSX_SYSROOT=iphoneos
         else
@@ -69,7 +73,7 @@ function setup_macos {
     fi
 }
 
-setup_$1 $@
+setup_$OS
 
 
 

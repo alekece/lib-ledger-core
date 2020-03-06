@@ -1,9 +1,9 @@
-# $1 platform <linux|macos|windows>
-# $2 mode <release|debug>
-# $3 target
-# $4 target parameters
+MODE=$1
+OS=$2
+TARGET=$3
+EXTRA=${@:3:#@}
 
-if [ "$3" == "ios" ]; then
+if [ "$TARGET" == "ios" ]; then
     xcodebuild -project ledger-core.xcodeproj -configuration Release -jobs 2
 else
     make -j2
