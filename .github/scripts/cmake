@@ -13,7 +13,7 @@ function add_to_cmake_parameters {
 }
 
 function cmake_mode_debug {
-    if [ "$1" == "ios" -o "$1" == "android" ];
+    if [ "$1" == "ios" -o "$1" == "android" ]; then
         add_to_cmake_parameters -DCMAKE_BUILD_TYPE:STRING=Debug
     else
         add_to_cmake_parameters -DCMAKE_BUILD_TYPE=Debug
@@ -23,7 +23,7 @@ function cmake_mode_debug {
 }
 
 function cmake_mode_release {
-    if [ "$1" == "ios" -o "$1" == "android" ];
+    if [ "$1" == "ios" -o "$1" == "android" ]; then
         add_to_cmake_parameters -DCMAKE_BUILD_TYPE:STRING=Release
     else
         add_to_cmake_parameters -DCMAKE_BUILD_TYPE=Release
