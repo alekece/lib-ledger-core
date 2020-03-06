@@ -3,7 +3,7 @@
 # $3 target
 # $4 target parameters
 
-function setup_Linux {
+function setup_linux {
     sudo apt-get update
     sudo apt-get install -y libx11-xcb-dev
     sudo apt-get install -y sqlite3 sqlite libsqlite3-dev
