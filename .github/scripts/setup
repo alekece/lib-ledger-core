@@ -44,6 +44,7 @@ function setup_macos {
 
         # Get accurate qt5 version
         export PATH="/usr/local/Cellar/qt/$(ls /usr/local/Cellar/qt | grep 5.)/bin:$PATH"
+        echo $PATH
     fi
 
     if [ "$TARGET" == "ios" ]; then

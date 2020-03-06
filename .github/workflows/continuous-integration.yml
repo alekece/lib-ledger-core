@@ -272,7 +272,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - run: echo ${{ matrix.target }}
 
       - name: Checkout submodules
         shell: bash
@@ -281,6 +280,8 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: .github/scripts/setup ${{ matrix.mode }} ${{ matrix.target.parameters }}
+
+      - run: echo $PATH
 
       - name: Create build directory
         shell: bash
