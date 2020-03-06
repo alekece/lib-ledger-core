@@ -250,19 +250,19 @@ jobs:
       fail-fast: false
       matrix:
         target: [
-          { runner: ubuntu-latest, parameters: linux},
-          { runner: ubuntu-latest, parameters: linux arch ssl_1_1},
-          { runner: ubuntu-latest, parameters: linux android },
-          { runner: ubuntu-latest, parameters: linux jni },
-          { runner: ubuntu-latest, parameters: linux android x86_64 },
-          { runner: ubuntu-latest, parameters: linux android armeabi-v7a },
-          { runner: ubuntu-latest, parameters: linux android arm64-v8a },
-          { runner: macOS-latest, parameters: macos},
-          { runner: macOS-latest, parameters: macos jni },
-          { runner: macOS-latest, parameters: macos ios },
-          { runner: macOS-latest, parameters: macos ios x86 },
-          { runner: macOS-latest, parameters: macos ios armv7 },
-          { runner: macOS-latest, parameters: macos ios arm64 }
+          { runner: ubuntu-latest, parameters: 'linux' },
+          { runner: ubuntu-latest, parameters: 'linux arch ssl_1_1' },
+          { runner: ubuntu-latest, parameters: 'linux android' },
+          { runner: ubuntu-latest, parameters: 'linux jni' },
+          { runner: ubuntu-latest, parameters: 'linux android x86_64' },
+          { runner: ubuntu-latest, parameters: 'linux android armeabi-v7a' },
+          { runner: ubuntu-latest, parameters: 'linux android arm64-v8a' },
+          { runner: macOS-latest, parameters: 'macos'},
+          { runner: macOS-latest, parameters: 'macos jni' },
+          { runner: macOS-latest, parameters: 'macos ios' },
+          { runner: macOS-latest, parameters: 'macos ios x86' },
+          { runner: macOS-latest, parameters: 'macos ios armv7' },
+          { runner: macOS-latest, parameters: 'macos ios arm64' }
         ]
         mode: [debug, release]
 
