@@ -271,13 +271,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Install dependencies
-        shell: bash
-        run: .github/scripts/setup debug ${{ matrix.target.parameters }}
+      - run: echo ${{ matrix.target }}
 
       - name: Checkout submodules
         shell: bash
         run: git submodule update --init --recursive
+
+      - name: Install dependencies
+        shell: bash
+        run: .github/scripts/setup debug ${{ matrix.target.parameters }}
 
       - name: Create build directory
         shell: bash

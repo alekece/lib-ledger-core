@@ -50,7 +50,7 @@ function cmake_linux {
 
 function cmake_macos {
     if [ "$MODE" == "debug" ]; then
-        echo "-DCMAKE_PREFIX_PATH=usr/local/Cellar/qt/$(ls /usr/local/Cellar/qt | grep 5.)"
+        echo "-DCMAKE_PREFIX_PATH=usr/local/Cellar/qt/$(ls /usr/local/Cellar/qt | grep 5.) -DPostgreSQL_TYPE_INCLUDE_DIR=/usr/include/postgresql"
     fi
 }
 
