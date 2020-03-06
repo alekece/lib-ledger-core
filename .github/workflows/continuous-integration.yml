@@ -176,7 +176,7 @@ jobs:
       - name: Upload install.zip
         uses: actions/upload-artifact@v1
         with:
-          name: ledger-core-${{ runner.os }}-${{ matrix.mode }}-${{ join(matrix.target.name, '-' }}-install
+          name: ledger-core-${{ runner.os }}-${{ matrix.mode }}-${{ join(matrix.target.name, '-') }}-install
           path: install.zip
 
   # build-ledger-core-coin:
