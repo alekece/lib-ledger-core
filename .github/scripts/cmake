@@ -54,4 +54,5 @@ function cmake_macos {
     fi
 }
 
-echo "$(cmake_$MODE) $(cmake_$OS) $(type cmake_$TARGET > /dev/null && cmake_$TARGET)"
+
+echo "$(type cmake_$TARGET > /dev/null && cmake_$TARGET) $(cmake_$MODE) $(cmake_$OS)"
