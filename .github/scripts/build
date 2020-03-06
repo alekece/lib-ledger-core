@@ -1,7 +1,7 @@
 MODE=$1
 OS=$2
 TARGET=$3
-EXTRA=${@:3:#@}
+EXTRA=${@:4:${#@}}
 
 if [ "$TARGET" == "ios" ]; then
     xcodebuild -project ledger-core.xcodeproj -configuration Release -jobs 2

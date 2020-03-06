@@ -1,12 +1,7 @@
-# $1 platform <linux|macos|windows>
-# $2 mode <release|debug>
-# $3 target
-# $4 target parameters
-
 MODE=$1
 OS=$2
 TARGET=$3
-EXTRA=${@:3:#@}
+EXTRA=${@:4:${#@}}
 
 function cmake_debug {
     if [ "$TARGET" == "ios" -o "$TARGET" == "android" ]; then
@@ -59,4 +54,4 @@ function cmake_macos {
     fi
 }
 
-echo "$(cmake_$MODE) $(cmake_$OS) $(cmake_$TARGET)"
+echo "$(cmake_$MODE) $(cmake_$OS) $(type cmake_$TARGET > /dev/null && cmake_$TARGET)"
