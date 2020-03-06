@@ -62,10 +62,6 @@ function cmake_macos {
     fi
 }
 
-function cmake_windows {
-
-}
-
 cmake_mode_$2
 type cmake_target_$3 && cmake_target_$3 $4
 cmake_$1 $@
