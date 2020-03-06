@@ -98,150 +98,150 @@ jobs:
         shell: bash
         run: tools/lc project api ${{ matrix.coin }}
 
-  build-ledger-core-release:
-    name: Build ledger-core with ${{ matrix.target.runner }} runner for ${{ matrix.target.name }} target in release mode
+  # build-ledger-core-release:
+  #   name: Build ledger-core with ${{ matrix.target.runner }} runner for ${{ matrix.target.name }} target in release mode
 
-    runs-on: ${{ matrix.target.runner }}
-    needs: generate-ledger-core-bindings
+  #   runs-on: ${{ matrix.target.runner }}
+  #   needs: generate-ledger-core-bindings
 
-    strategy:
-      matrix:
-        target: [
-          { runner: ubuntu-latest, os: linux, name: linux},
-          { runner: ubuntu-latest, os: linux, name: arch ssl_1_1},
-          { runner: ubuntu-latest, os: linux, name: android },
-          { runner: ubuntu-latest, os: linux, name: jni },
-          { runner: ubuntu-latest, os: linux, name: android x86_64 },
-          { runner: ubuntu-latest, os: linux, name: android armeabi-v7a },
-          { runner: ubuntu-latest, os: linux, name: android arm64-v8a },
-          { runner: macOS-latest, os: macos, name: macos},
-          { runner: macOS-latest, os: macos, name: jni },
-          { runner: macOS-latest, os: macos, name: ios },
-          { runner: macOS-latest, os: macos, name: ios x86 },
-          { runner: macOS-latest, os: macos, name: ios armv7 },
-          { runner: macOS-latest, os: macos, name: ios arm64 }
-        ]
+  #   strategy:
+  #     matrix:
+  #       target: [
+  #         { runner: ubuntu-latest, os: linux, name: linux},
+  #         { runner: ubuntu-latest, os: linux, name: arch ssl_1_1},
+  #         { runner: ubuntu-latest, os: linux, name: android },
+  #         { runner: ubuntu-latest, os: linux, name: jni },
+  #         { runner: ubuntu-latest, os: linux, name: android x86_64 },
+  #         { runner: ubuntu-latest, os: linux, name: android armeabi-v7a },
+  #         { runner: ubuntu-latest, os: linux, name: android arm64-v8a },
+  #         { runner: macOS-latest, os: macos, name: macos},
+  #         { runner: macOS-latest, os: macos, name: jni },
+  #         { runner: macOS-latest, os: macos, name: ios },
+  #         { runner: macOS-latest, os: macos, name: ios x86 },
+  #         { runner: macOS-latest, os: macos, name: ios armv7 },
+  #         { runner: macOS-latest, os: macos, name: ios arm64 }
+  #       ]
 
-    env:
-      parameters: ${{ matrix.target.os }} release ${{ matrix.target.name }}
+  #   env:
+  #     parameters: ${{ matrix.target.os }} release ${{ matrix.target.name }}
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v2
 
-      - name: Install dependencies
-        shell: bash
-        run: .github/scripts/setup ${{ env.parameters }}
+  #     - name: Install dependencies
+  #       shell: bash
+  #       run: .github/scripts/setup ${{ env.parameters }}
 
-      - name: Checkout submodules
-        shell: bash
-        run: git submodule update --init --recursive
+  #     - name: Checkout submodules
+  #       shell: bash
+  #       run: git submodule update --init --recursive
 
-      - name: Cache generated API
-        uses: actions/cache@v1
-        with:
-          path: ledger-core/inc/core/api
-          key: ledger-core-api-${{ hashFiles('ledger-core/idl/**') }}
+  #     - name: Cache generated API
+  #       uses: actions/cache@v1
+  #       with:
+  #         path: ledger-core/inc/core/api
+  #         key: ledger-core-api-${{ hashFiles('ledger-core/idl/**') }}
 
-      - name: Create build directory
-        shell: bash
-        run: mkdir -p ledger-core/build
+  #     - name: Create build directory
+  #       shell: bash
+  #       run: mkdir -p ledger-core/build
 
-      - name: Configure CMake
-        shell: bash
-        run: cmake -S ledger-core -B ledger-core/build $(.github/scripts/cmake ${{ env.parameters }}) -DCMAKE_INSTALL_PREFIX=install
+  #     - name: Configure CMake
+  #       shell: bash
+  #       run: cmake -S ledger-core -B ledger-core/build $(.github/scripts/cmake ${{ env.parameters }}) -DCMAKE_INSTALL_PREFIX=install
 
-      - name: Build library
-        shell: bash
-        working-directory: ledger-core/build
-        run: .github/scripts/build ${{ env.parameters }}
+  #     - name: Build library
+  #       shell: bash
+  #       working-directory: ledger-core/build
+  #       run: .github/scripts/build ${{ env.parameters }}
 
-      - name: Create install directory
-        shell: bash
-        run: mkdir -p install
+  #     - name: Create install directory
+  #       shell: bash
+  #       run: mkdir -p install
 
-      - name: Install library
-        shell: bash
-        run: cmake --install ledger-core/build
+  #     - name: Install library
+  #       shell: bash
+  #       run: cmake --install ledger-core/build
 
-      - name: Compress install directory
-        shell: bash
-        run: zip -r install.zip install
+  #     - name: Compress install directory
+  #       shell: bash
+  #       run: zip -r install.zip install
 
-      - name: Upload install.zip
-        uses: actions/upload-artifact@v1
-        with:
-          name: ledger-core-${{ matrix.target.runner }}-release-${{ join(matrix.target.name, '-') }}-install
-          path: install.zip
+  #     - name: Upload install.zip
+  #       uses: actions/upload-artifact@v1
+  #       with:
+  #         name: ledger-core-${{ matrix.target.runner }}-release-${{ join(matrix.target.name, '-') }}-install
+  #         path: install.zip
 
-  build-ledger-core-coin-release:
-    name: Build ledger-core-${{ matrix.coin }} with ${{ matrix.target.runner }} runner for ${{ matrix.target.name }} target in release mode
+  # build-ledger-core-coin-release:
+  #   name: Build ledger-core-${{ matrix.coin }} with ${{ matrix.target.runner }} runner for ${{ matrix.target.name }} target in release mode
 
-    runs-on: ${{ matrix.target.runner }}
-    needs: build-ledger-core-release
+  #   runs-on: ${{ matrix.target.runner }}
+  #   needs: build-ledger-core-release
 
-    strategy:
-      matrix:
-        coin: [bitcoin, ripple, ethereum, tezos]
-        target: [
-          { runner: ubuntu-latest, os: linux, name: linux},
-          { runner: ubuntu-latest, os: linux, name: arch ssl_1_1},
-          { runner: ubuntu-latest, os: linux, name: android },
-          { runner: ubuntu-latest, os: linux, name: jni },
-          { runner: ubuntu-latest, os: linux, name: android x86_64 },
-          { runner: ubuntu-latest, os: linux, name: android armeabi-v7a },
-          { runner: ubuntu-latest, os: linux, name: android arm64-v8a },
-          { runner: macOS-latest, os: macos, name: macos},
-          { runner: macOS-latest, os: macos, name: jni },
-          { runner: macOS-latest, os: macos, name: ios },
-          { runner: macOS-latest, os: macos, name: ios x86 },
-          { runner: macOS-latest, os: macos, name: ios armv7 },
-          { runner: macOS-latest, os: macos, name: ios arm64 }
-        ]
+  #   strategy:
+  #     matrix:
+  #       coin: [bitcoin, ripple, ethereum, tezos]
+  #       target: [
+  #         { runner: ubuntu-latest, os: linux, name: linux},
+  #         { runner: ubuntu-latest, os: linux, name: arch ssl_1_1},
+  #         { runner: ubuntu-latest, os: linux, name: android },
+  #         { runner: ubuntu-latest, os: linux, name: jni },
+  #         { runner: ubuntu-latest, os: linux, name: android x86_64 },
+  #         { runner: ubuntu-latest, os: linux, name: android armeabi-v7a },
+  #         { runner: ubuntu-latest, os: linux, name: android arm64-v8a },
+  #         { runner: macOS-latest, os: macos, name: macos},
+  #         { runner: macOS-latest, os: macos, name: jni },
+  #         { runner: macOS-latest, os: macos, name: ios },
+  #         { runner: macOS-latest, os: macos, name: ios x86 },
+  #         { runner: macOS-latest, os: macos, name: ios armv7 },
+  #         { runner: macOS-latest, os: macos, name: ios arm64 }
+  #       ]
 
-    env:
-      parameters: ${{ matrix.target.os }} debug ${{ matrix.target.name }}
+  #   env:
+  #     parameters: ${{ matrix.target.os }} debug ${{ matrix.target.name }}
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v2
 
-      - name: Install dependencies
-        shell: bash
-        run: .github/scripts/setup ${{ env.parameters }}
+  #     - name: Install dependencies
+  #       shell: bash
+  #       run: .github/scripts/setup ${{ env.parameters }}
 
-      - name: Checkout submodules
-        shell: bash
-        run: git submodule update --init --recursive
+  #     - name: Checkout submodules
+  #       shell: bash
+  #       run: git submodule update --init --recursive
 
-      - name: Cache generated API
-        uses: actions/cache@v1
-        with:
-          path: ledger-core-${{ matrix.coin }}/inc/${{ matrix.coin }}/api
-          key: ledger-core-${{ matrix.coin }}-api-${{ hashFiles(format('ledger-core-{0}/idl/**', matrix.coin)) }}
+  #     - name: Cache generated API
+  #       uses: actions/cache@v1
+  #       with:
+  #         path: ledger-core-${{ matrix.coin }}/inc/${{ matrix.coin }}/api
+  #         key: ledger-core-${{ matrix.coin }}-api-${{ hashFiles(format('ledger-core-{0}/idl/**', matrix.coin)) }}
 
-      - name: Download install.zip
-        uses: actions/download-artifact@v1
-        with:
-          name: ledger-core-${{ matrix.target.runner }}-release-${{ join(matrix.os.name, '-') }}-install
-          path: .
+  #     - name: Download install.zip
+  #       uses: actions/download-artifact@v1
+  #       with:
+  #         name: ledger-core-${{ matrix.target.runner }}-release-${{ join(matrix.os.name, '-') }}-install
+  #         path: .
 
-      - name: Uncompress install.zip
-        shell: bash
-        run: unzip install.zip
+  #     - name: Uncompress install.zip
+  #       shell: bash
+  #       run: unzip install.zip
 
-      - name: Create build directory
-        shell: bash
-        run: mkdir -p ledger-core-${{ matrix.coin }}/build
+  #     - name: Create build directory
+  #       shell: bash
+  #       run: mkdir -p ledger-core-${{ matrix.coin }}/build
 
-      - name: Configure CMake
-        shell: bash
-        run: cmake -S ledger-core-${{ matrix.coin }} -B ledger-core-${{ matrix.coin }}/build $(.github/scripts/cmake ${{ env.parameters }}) -DCMAKE_INSTALL_PREFIX=install
+  #     - name: Configure CMake
+  #       shell: bash
+  #       run: cmake -S ledger-core-${{ matrix.coin }} -B ledger-core-${{ matrix.coin }}/build $(.github/scripts/cmake ${{ env.parameters }}) -DCMAKE_INSTALL_PREFIX=install
 
-      - name: Build library
-        shell: bash
-        working-directory: ledger-core/build
-        run: .github/scripts/build ${{ env.parameters }}
+  #     - name: Build library
+  #       shell: bash
+  #       working-directory: ledger-core/build
+  #       run: .github/scripts/build ${{ env.parameters }}
 
   build-ledger-core-debug:
     name: Build ledger-core with ${{ matrix.target.runner }} runner for ${{ matrix.target.name }} target in debug mode
