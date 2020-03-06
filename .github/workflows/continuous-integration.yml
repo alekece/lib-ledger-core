@@ -3,233 +3,246 @@ name: Continuous integration
 on: [push, pull_request]
 
 jobs:
-    generate-ledger-core-bindings:
-      name: Generate ledger-core bindings
+  generate-ledger-core-bindings:
+    name: Generate ledger-core bindings
 
-      runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v2
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-        - name: Checkout submodules
-          shell: bash
-          run: git submodule update --init --recursive
+      - name: Checkout submodules
+        shell: bash
+        run: git submodule update --init --recursive
 
-        - name: Cache SBT ivy
-          uses: actions/cache@v1
-          with:
-            path: ~/.ivy2/cache
-            key: sbt-ivy-${{ hashFiles('djinni/src/**') }}
+      - name: Cache SBT ivy
+        uses: actions/cache@v1
+        with:
+          path: ~/.ivy2/cache
+          key: sbt-ivy-${{ hashFiles('djinni/src/**') }}
 
-        - name: Cache SBT
-          uses: actions/cache@v1
-          with:
-            path: ~/.sbt
-            key: sbt-${{ hashFiles('djinni/src/**') }}
+      - name: Cache SBT
+        uses: actions/cache@v1
+        with:
+          path: ~/.sbt
+          key: sbt-${{ hashFiles('djinni/src/**') }}
 
-        - name: Cache generated API
-          uses: actions/cache@v1
-          with:
-            path: ledger-core/inc/core/api
-            key: ledger-core-api-${{ hashFiles('ledger-core/idl/**') }}
+      - name: Cache generated API
+        uses: actions/cache@v1
+        with:
+          path: ledger-core/inc/core/api
+          key: ledger-core-api-${{ hashFiles('ledger-core/idl/**') }}
 
-        - name: Cache generated JNI
-          uses: actions/cache@v1
-          with:
-            path: ledger-core/inc/core/jni
-            key: ledger-core-jni-${{ hashFiles('ledger-core/idl/**') }}
+      - name: Cache generated JNI
+        uses: actions/cache@v1
+        with:
+          path: ledger-core/inc/core/jni
+          key: ledger-core-jni-${{ hashFiles('ledger-core/idl/**') }}
 
-        - name: Generate bindings
-          shell: bash
-          run: tools/lc api
+      - name: Cache IDL
+        uses: actions/cache@v1
+        with:
+          path: ledger-core/idl
+          key: ledger-core-idl-${{ hashFiles('ledger-core/idl/**') }}
 
-        - name: Upload core.yaml
-          uses: actions/upload-artifact@v1
-          with:
-            name: ledger-core-bindings
-            path: ledger-core/idl/core.yaml
+      - name: Generate bindings
+        if: failure()
+        shell: bash
+        run: tools/lc api
 
-    generate-ledger-core-coin-bindings:
-      name: Generate ledger-core-${{ matrix.coin }} bindings
+  generate-ledger-core-coin-bindings:
+    name: Generate ledger-core-${{ matrix.coin }} bindings
 
-      runs-on: ubuntu-latest
-      needs: generate-ledger-core-bindings
+    runs-on: ubuntu-latest
+    needs: generate-ledger-core-bindings
 
-      strategy:
-        matrix:
-          coin: [bitcoin, ethereum, ripple, tezos]
+    strategy:
+      matrix:
+        coin: [bitcoin, ethereum, ripple, tezos]
 
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v2
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-        - name: Checkout submodules
-          shell: bash
-          run: git submodule update --init --recursive
+      - name: Checkout submodules
+        shell: bash
+        run: git submodule update --init --recursive
 
-        - name: Cache SBT ivy
-          uses: actions/cache@v1
-          with:
-            path: ~/.ivy2/cache
-            key: sbt-ivy-${{ hashFiles('djinni/src/**') }}
-        - name: Cache SBT
-          uses: actions/cache@v1
-          with:
-            path: ~/.sbt
-            key: sbt-${{ hashFiles('djinni/src/**') }}
+      - name: Cache SBT ivy
+        uses: actions/cache@v1
+        with:
+          path: ~/.ivy2/cache
+          key: sbt-ivy-${{ hashFiles('djinni/src/**') }}
 
-        - name: Cache generated API
-          uses: actions/cache@v1
-          with:
-            path: ledger-core-${{ matrix.coin }}/inc/${{ matrix.coin }}/api
-            key: ledger-core-${{ matrix.coin }}-api-${{ hashFiles(format('ledger-core-{0}/idl/**', matrix.coin)) }}
+      - name: Cache SBT
+        uses: actions/cache@v1
+        with:
+          path: ~/.sbt
+          key: sbt-${{ hashFiles('djinni/src/**') }}
 
-        - name: Download core.yaml
-          uses: actions/download-artifact@v1
-          with:
-            name: ledger-core-bindings
-            path: ledger-core/idl
+      - name: Cache IDL
+        uses: actions/cache@v1
+        with:
+          path: ledger-core/idl
+          key: ledger-core-idl-${{ hashFiles('ledger-core/idl/**') }}
 
-        - name: Generate bindings
-          shell: bash
-          run: tools/lc project api ${{ matrix.coin }}
+      - name: Cache generated API
+        uses: actions/cache@v1
+        with:
+          path: ledger-core-${{ matrix.coin }}/inc/${{ matrix.coin }}/api
+          key: ledger-core-${{ matrix.coin }}-api-${{ hashFiles(format('ledger-core-{0}/idl/**', matrix.coin)) }}
 
-    build-ledger-core:
-      name: Build ledger-core on ${{ matrix.os.alias }} in ${{ matrix.mode }} mode
+      - name: Generate bindings
+        if: failure()
+        shell: bash
+        run: tools/lc project api ${{ matrix.coin }}
 
-      runs-on: ${{ matrix.os.name }}
-      needs: generate-ledger-core-bindings
+  build-ledger-core:
+    name: Build ledger-core in ${{ runner.os }} for ${{ matrix.target.name }} target in ${{ matrix.mode }} mode
 
-      strategy:
-        fail-fast: false
-        matrix:
-          os: [
-            { name: ubuntu-latest, alias: linux }
-            # { name: macOS-latest, alias: macos }
-            # { name: windows-latest, alias: windows }
-          ]
-          mode: [debug, release]
+    runs-on: ${{ matrix.os }}
+    needs: generate-ledger-core-bindings
 
-      env:
-        script-suffix: .github/scripts/${{ matrix.os.alias }}_${{ matrix.mode }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest]
+        target: [
+          { os: [Linux], name: main, mode: [debug, release]},
+          { os: [Linux], name: arch ssl_1_1, mode: [release] },
+          { os: [Linux, macOS], name: jni, mode: [release] },
+          { os: [Linux], name: android, mode: [release] },
+          { os: [Linux], name: android x86_64, mode: [release] },
+          { os: [Linux], name: android armeabi-v7a, mode: [release] },
+          { os: [Linux], name: android arm64-v8a, mode: [release] },
+          { os: [macOS], name: main, mode: [debug, release] },
+          { os: [macOS], name: ios, mode: [release] },
+          { os: [macOS], name: ios x86, mode: [release] },
+          { os: [macOS], name: ios armv7, mode: [release] },
+          { os: [macOS], name: ios arm64, mode: [release] }
+        ]
+        mode: [debug, release]
 
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v2
+    env:
+      parameters: ${{ runner.os }} ${{ matrix.target.mode }} ${{ matrix.target.name }}
 
-        - name: Install dependencies
-          shell: bash
-          run: ${{ env.script-suffix }}_install_dependencies
+    if: contains(matrix.target.os, runner.os) && contains(matrix.target.mode, matrix.mode)
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-        - name: Checkout submodules
-          shell: bash
-          run: git submodule update --init --recursive
+      - name: Install dependencies
+        shell: bash
+        run: .github/scripts/setup ${{ env.parameters }}
 
-        - name: Cache generated API
-          uses: actions/cache@v1
-          with:
-            path: ledger-core/inc/core/api
-            key: ledger-core-api-${{ hashFiles('ledger-core/idl/**') }}
+      - name: Checkout submodules
+        shell: bash
+        run: git submodule update --init --recursive
 
-        - name: Create build directory
-          shell: bash
-          run: mkdir -p ledger-core/build
+      - name: Cache generated API
+        uses: actions/cache@v1
+        with:
+          path: ledger-core/inc/core/api
+          key: ledger-core-api-${{ hashFiles('ledger-core/idl/**') }}
 
-        - name: Configure CMake
-          shell: bash
-          run: cmake -S ledger-core -B ledger-core/build `${{ env.script-suffix }}_configure_cmake` -DCMAKE_INSTALL_PREFIX=install
+      - name: Create build directory
+        shell: bash
+        run: mkdir -p ledger-core/build
 
-        - name: Build library
-          shell: bash
-          run: cmake --build ledger-core/build -j2
+      - name: Configure CMake
+        shell: bash
+        run: cmake -S ledger-core -B ledger-core/build $(.github/scripts/cmake ${{ env.parameters }}) -DCMAKE_INSTALL_PREFIX=install
 
-        # - name: Test library
-        #   if: matrix.mode == 'debug'
-        #   shell: bash
-        #   working-directory: ledger-core/build
-        #   run: ctest
+      - name: Build library
+        shell: bash
+        working-directory: ledger-core/build
+        run: .github/scripts/build ${{ env.parameters }}
 
-        - name: Create install directory
-          shell: bash
-          run: mkdir -p install
+      # - name: Test library
+      #   if: matrix.mode == 'debug'
+      #   shell: bash
+      #   working-directory: ledger-core/build
+      #   run: ctest -VV -timeout 60
 
-        - name: Install library
-          shell: bash
-          run: cmake --install ledger-core/build
+      - name: Create install directory
+        shell: bash
+        run: mkdir -p install
 
-        - name: Compress install directory
-          shell: bash
-          run: zip -r install.zip install
+      - name: Install library
+        shell: bash
+        run: cmake --install ledger-core/build
 
-        - name: Upload install.zip
-          uses: actions/upload-artifact@v1
-          with:
-            name: ledger-core-${{matrix.os.alias}}-${{ matrix.mode}}-install
-            path: install.zip
+      - name: Compress install directory
+        shell: bash
+        run: zip -r install.zip install
 
-    build-ledger-core-coin:
-      name: Build ledger-core-${{ matrix.coin }} on ${{ matrix.os.alias }} in ${{ matrix.mode }} mode
+      - name: Upload install.zip
+        uses: actions/upload-artifact@v1
+        with:
+          name: ledger-core-${{ runner.os }}-${{ matrix.mode }}-${{ join(matrix.target.name, '-' }}-install
+          path: install.zip
 
-      runs-on: ${{ matrix.os.name }}
-      needs: [generate-ledger-core-coin-bindings, build-ledger-core]
+  # build-ledger-core-coin:
+  #   name: Build ledger-core-${{ matrix.coin }} on ${{ matrix.os.alias }} in ${{ matrix.mode }} mode
 
-      strategy:
-        fail-fast: false
-        matrix:
-          coin: [bitcoin, ethereum, ripple, tezos]
-          os: [
-            { name: ubuntu-latest, alias: linux }
-            # { name: macOS-latest, alias: macos, type: unix: cache: {sbt: ~/.sbt, ivy: ~/.ivy2/cache }}
-            # { name: windows-latest, alias: windows }
-          ]
-          mode: [debug, release]
+  #   runs-on: ${{ matrix.os.name }}
+  #   needs: [generate-ledger-core-coin-bindings, build-ledger-core]
 
-      env:
-        script-suffix: .github/scripts/${{ matrix.os.alias }}_${{ matrix.mode }}
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       coin: [bitcoin, ethereum, ripple, tezos]
+  #       os: [
+  #         { name: ubuntu-latest, alias: linux }
+  #         # { name: macOS-latest, alias: macos, type: unix: cache: {sbt: ~/.sbt, ivy: ~/.ivy2/cache }}
+  #         # { name: windows-latest, alias: windows }
+  #       ]
+  #       mode: [debug, release]
 
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v2
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v2
 
-        - name: Install dependencies
-          shell: bash
-          run: ${{ env.script-suffix }}_install_dependencies
+  #     - name: Install dependencies
+  #       shell: bash
+  #       run: .github/scripts/${{ matrix.os.alias }}_${{ matrix.mode }}_install_dependencies
 
-        - name: Checkout submodules
-          shell: bash
-          run: git submodule update --init --recursive
+  #     - name: Checkout submodules
+  #       shell: bash
+  #       run: git submodule update --init --recursive
 
-        - name: Cache generated API
-          uses: actions/cache@v1
-          with:
-            path: ledger-core-${{ matrix.coin }}/inc/${{ matrix.coin }}/api
-            key: ledger-core-${{ matrix.coin }}-api-${{ hashFiles(format('ledger-core-{0}/idl/**', matrix.coin)) }}
+  #     - name: Cache generated API
+  #       uses: actions/cache@v1
+  #       with:
+  #         path: ledger-core-${{ matrix.coin }}/inc/${{ matrix.coin }}/api
+  #         key: ledger-core-${{ matrix.coin }}-api-${{ hashFiles(format('ledger-core-{0}/idl/**', matrix.coin)) }}
 
-        - name: Download install.zip
-          uses: actions/download-artifact@v1
-          with:
-            name: ledger-core-${{ matrix.os.alias }}-${{ matrix.mode}}-install
-            path: .
+  #     - name: Download install.zip
+  #       uses: actions/download-artifact@v1
+  #       with:
+  #         name: ledger-core-${{ matrix.os.alias }}-${{ matrix.mode}}-install
+  #         path: .
 
-        - name: Uncompress install.zip
-          shell: bash
-          run: unzip install.zip
+  #     - name: Uncompress install.zip
+  #       shell: bash
+  #       run: unzip install.zip
 
-        - name: Create build directory
-          shell: bash
-          run: mkdir -p ledger-core-${{ matrix.coin }}/build
+  #     - name: Create build directory
+  #       shell: bash
+  #       run: mkdir -p ledger-core-${{ matrix.coin }}/build
 
-        - name: Configure CMake
-          shell: bash
-          run: cmake -S ledger-core-${{ matrix.coin }} -B ledger-core-${{ matrix.coin }}/build `${{ env.script-suffix }}_configure_cmake` -DCMAKE_INSTALL_PREFIX=install
+  #     - name: Configure CMake
+  #       shell: bash
+  #       run: |
+  #         cmake_parameters="$(.github/scripts/${{ matrix.os.alias }}_${{ matrix.mode }}_configure_cmake)"
+  #         cmake -S ledger-core-${{ matrix.coin }} -B ledger-core-${{ matrix.coin }}/build $cmake_parameters
 
-        - name: Build library
-          shell: bash
-          run: cmake --build ledger-core-${{ matrix.coin }}/build -j2
+  #     - name: Build library
+  #       shell: bash
+  #       run: cmake --build ledger-core-${{ matrix.coin }}/build -j2
 
-        # - name: Test library
-        #   if: matrix.mode == 'debug'
-        #   shell: bash
-        #   working-directory: ledger-core-${{ matrix.coin }}/build
-        #   run: ctest
+  #     # - name: Test library
+  #     #   if: matrix.mode == 'debug'
+  #     #   shell: bash
+  #     #   working-directory: ledger-core-${{ matrix.coin }}/build
+  #     #   run: ctest -VV -timeout 6

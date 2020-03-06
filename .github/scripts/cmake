@@ -1,0 +1,77 @@
+# $1 platform <Linux|macOS|Windows>
+# $2 mode <release|debug>
+# $3 target
+# $4 target parameters
+
+cmake_parameters=""
+
+function add_to_cmake_parameters {
+    local parameter
+    for parameter; do
+        cmake_parameters="$cmake_parameters $parameter"
+    done
+}
+
+function cmake_mode_debug {
+    if [ "$1" == "ios" -o "$1" == "android" ];
+        add_to_cmake_parameters -DCMAKE_BUILD_TYPE:STRING=Debug
+    else
+        add_to_cmake_parameters -DCMAKE_BUILD_TYPE=Debug
+    fi
+
+    add_to_cmake_parameters -DBUILD_TESTS=ON -DPG_SUPPORT=ON -DPostgreSQL_INCLUDE_DIR=/usr/include/postgresql
+}
+
+function cmake_mode_release {
+    if [ "$1" == "ios" -o "$1" == "android" ];
+        add_to_cmake_parameters -DCMAKE_BUILD_TYPE:STRING=Release
+    else
+        add_to_cmake_parameters -DCMAKE_BUILD_TYPE=Release
+    fi
+    add_to_cmake_parameters -DBUILD_TESTS=ON
+}
+
+function cmake_target_jni {
+    # Activate SSL only when using PG for WD
+    add_to_cmake_parameters -DTARGET_JNI=ON -DPostgreSQL_INCLUDE_DIR=/usr/include/postgresql -DSSL_SUPPORT=ON
+}
+
+function cmake_target_arch {
+    if [ "$1" == "ssl_1_1" ]; then
+        add_to_cmake_parameters -DCMAKE_PREFIX=$HOME -DSYS_OPENSSL=ON -DOPENSSL_USE_STATIC_LIBS=TRUE
+    fi
+}
+
+function cmake_target_ios {
+    add_to_cmake_parameters -G "Xcode" -DCMAKE_OSX_ARCHITECTURES:STRING=$1 -DCMAKE_MACOSX_BUNDLE:BOOL=ON -DCMAKE_OSX_SYSROOT:STRING=${OSX_SYSROOT} -DCMAKE_TOOLCHAIN_FILE=${POLLY_ROOT}/${TOOLCHAIN_NAME}.cmake
+}
+
+function cmake_target_android {
+    add_to_cmake_parameters -DTARGET_JNI=ON -DCMAKE_TOOLCHAIN_FILE=${POLLY_ROOT}/${TOOLCHAIN_NAME}.cmake
+}
+
+function cmake_target_main {
+
+}
+
+function cmake_Linux {
+    if [ "$1" == "debug" ];
+        add_to_cmake_parameters -DSYS_OPENSSL=ON -DOPENSSL_SSL_LIBRARIES=/usr/lib/x86_64-linux-gnu -DOPENSSL_INCLUDE_DIR=/usr/include/openssl
+    fi
+}
+
+function cmake_macOS {
+    if [ "$1" == "debug" ]; then
+        add_to_cmake_parameters -DCMAKE_PREFIX_PATH=usr/local/Cellar/qt/$(ls /usr/local/Cellar/qt | grep 5.)
+    fi
+}
+
+function cmake_Windows {
+
+}
+
+cmake_mode_$2
+cmake_target $3 $4
+cmake_$1 ${@:2}
+
+echo $cmake_parameters
