@@ -1,4 +1,4 @@
-# $1 platform <Linux|macOS|Windows>
+# $1 platform <linux|macos|windows>
 # $2 mode <release|debug>
 # $3 target
 # $4 target parameters
@@ -50,24 +50,24 @@ function cmake_target_android {
     add_to_cmake_parameters -DTARGET_JNI=ON -DCMAKE_TOOLCHAIN_FILE=${POLLY_ROOT}/${TOOLCHAIN_NAME}.cmake
 }
 
-function cmake_Linux {
+function cmake_linux {
     if [ "$1" == "debug" ];
         add_to_cmake_parameters -DSYS_OPENSSL=ON -DOPENSSL_SSL_LIBRARIES=/usr/lib/x86_64-linux-gnu -DOPENSSL_INCLUDE_DIR=/usr/include/openssl
     fi
 }
 
-function cmake_macOS {
+function cmake_macos {
     if [ "$1" == "debug" ]; then
         add_to_cmake_parameters -DCMAKE_PREFIX_PATH=usr/local/Cellar/qt/$(ls /usr/local/Cellar/qt | grep 5.)
     fi
 }
 
-function cmake_Windows {
+function cmake_windows {
 
 }
 
 cmake_mode_$2
 type cmake_target_$3 && cmake_target_$3 $4
-cmake_$1 ${@:2}
+cmake_$1 $@
 
 echo $cmake_parameters

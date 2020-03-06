@@ -1,4 +1,4 @@
-# $1 platform <Linux|macOS|Windows>
+# $1 platform <linux|macos|windows>
 # $2 mode <release|debug>
 # $3 target
 # $4 target parameters

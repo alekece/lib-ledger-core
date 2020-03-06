@@ -99,29 +99,28 @@ jobs:
         run: tools/lc project api ${{ matrix.coin }}
 
   build-ledger-core:
-    name: Build ledger-core in ${{ matrix.os }} for ${{ matrix.target.name }} target in ${{ matrix.mode }} mode
+    name: Build ledger-core with ${{ matrix.target.runner }} runner for ${{ matrix.target.name }} target in release mode
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.target.runner }}
     needs: generate-ledger-core-bindings
 
     strategy:
       matrix:
-        os: [ubuntu-latest, macOS-latest]
         target: [
-          { os: [Linux], name: linux, mode: [debug, release]},
-          { os: [Linux], name: arch ssl_1_1, mode: [release] },
-          { os: [Linux, macOS], name: jni, mode: [release] },
-          { os: [Linux], name: android, mode: [release] },
-          { os: [Linux], name: android x86_64, mode: [release] },
-          { os: [Linux], name: android armeabi-v7a, mode: [release] },
-          { os: [Linux], name: android arm64-v8a, mode: [release] },
-          { os: [macOS], name: macos, mode: [debug, release] },
-          { os: [macOS], name: ios, mode: [release] },
-          { os: [macOS], name: ios x86, mode: [release] },
-          { os: [macOS], name: ios armv7, mode: [release] },
-          { os: [macOS], name: ios arm64, mode: [release] }
+          { runner: ubuntu-latest, os: linux, name: linux},
+          { runner: ubuntu-latest, os: linux, name: arch ssl_1_1},
+          { runner: ubuntu-latest, os: linux, name: android },
+          { runner: ubuntu-latest, os: linux, name: jni },
+          { runner: ubuntu-latest, os: linux, name: android x86_64 },
+          { runner: ubuntu-latest, os: linux, name: android armeabi-v7a },
+          { runner: ubuntu-latest, os: linux, name: android arm64-v8a },
+          { runner: macOS-latest, os: macos, name: macos},
+          { runner: macOS-latest, os: macos, name: jni },
+          { runner: macOS-latest, os: macos, name: ios },
+          { runner: macOS-latest, os: macos, name: ios x86 },
+          { runner: macOS-latest, os: macos, name: ios armv7 },
+          { runner: macOS-latest, os: macos, name: ios arm64 }
         ]
-        mode: [debug, release]
 
     steps:
       - name: Checkout repository
@@ -147,18 +146,12 @@ jobs:
 
       - name: Configure CMake
         shell: bash
-        run: cmake -S ledger-core -B ledger-core/build $(.github/scripts/cmake ${{ runner.os }} ${{ matrix.mode }} ${{ matrix.target.name }}) -DCMAKE_INSTALL_PREFIX=install
+        run: cmake -S ledger-core -B ledger-core/build $(.github/scripts/cmake ${{ env.parameters }}) -DCMAKE_INSTALL_PREFIX=install
 
       - name: Build library
         shell: bash
         working-directory: ledger-core/build
-        run: .github/scripts/build ${{ runner.os }} ${{ matrix.mode }} ${{ matrix.target.name }}
-
-      # - name: Test library
-      #   if: matrix.mode == 'debug'
-      #   shell: bash
-      #   working-directory: ledger-core/build
-      #   run: ctest -VV -timeout 60
+        run: .github/scripts/build ${{ env.parameters }}
 
       - name: Create install directory
         shell: bash
@@ -175,7 +168,7 @@ jobs:
       - name: Upload install.zip
         uses: actions/upload-artifact@v1
         with:
-          name: ledger-core-${{ runner.os }}-${{ matrix.mode }}-${{ join(matrix.target.name, '-') }}-install
+          name: ledger-core-${{ matrix.target.runner }}-release-${{ join(matrix.target.name, '-') }}-install
           path: install.zip
 
   # build-ledger-core-coin:
