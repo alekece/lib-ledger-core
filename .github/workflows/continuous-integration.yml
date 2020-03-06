@@ -264,6 +264,7 @@ jobs:
           { runner: macOS-latest, parameters: macos ios armv7 },
           { runner: macOS-latest, parameters: macos ios arm64 }
         ]
+        mode: [debug, release]
 
     runs-on: ${{ matrix.target.runner }}
 
@@ -279,7 +280,7 @@ jobs:
 
       - name: Install dependencies
         shell: bash
-        run: .github/scripts/setup debug ${{ matrix.target.parameters }}
+        run: .github/scripts/setup ${{ matrix.mode }} ${{ matrix.target.parameters }}
 
       - name: Create build directory
         shell: bash
@@ -288,7 +289,7 @@ jobs:
       - name: Configure CMake
         shell: bash
         run: |
-          parameters="$(.github/scripts/cmake debug ${{ matrix.target.parameters }}) -DCMAKE_INSTALL_PREFIX=install"
+          parameters="$(.github/scripts/cmake ${{ matrix.mode }} ${{ matrix.target.parameters }}) -DCMAKE_INSTALL_PREFIX=install"
           echo $parameters
           cmake -S ledger-core -B ledger-core/build $parameters -DCMAKE_INSTALL_PREFIX=install
 
