@@ -50,10 +50,6 @@ function cmake_target_android {
     add_to_cmake_parameters -DTARGET_JNI=ON -DCMAKE_TOOLCHAIN_FILE=${POLLY_ROOT}/${TOOLCHAIN_NAME}.cmake
 }
 
-function cmake_target_main {
-
-}
-
 function cmake_Linux {
     if [ "$1" == "debug" ];
         add_to_cmake_parameters -DSYS_OPENSSL=ON -DOPENSSL_SSL_LIBRARIES=/usr/lib/x86_64-linux-gnu -DOPENSSL_INCLUDE_DIR=/usr/include/openssl
@@ -71,7 +67,7 @@ function cmake_Windows {
 }
 
 cmake_mode_$2
-cmake_target $3 $4
+type cmake_target_$3 && cmake_target_$3 $4
 cmake_$1 ${@:2}
 
 echo $cmake_parameters

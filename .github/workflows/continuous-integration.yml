@@ -99,7 +99,7 @@ jobs:
         run: tools/lc project api ${{ matrix.coin }}
 
   build-ledger-core:
-    name: Build ledger-core in ${{ runner.os }} for ${{ matrix.target.name }} target in ${{ matrix.mode }} mode
+    name: Build ledger-core in ${{ matrix.os }} for ${{ matrix.target.name }} target in ${{ matrix.mode }} mode
 
     runs-on: ${{ matrix.os }}
     needs: generate-ledger-core-bindings
@@ -108,23 +108,20 @@ jobs:
       matrix:
         os: [ubuntu-latest, macOS-latest]
         target: [
-          { os: [Linux], name: main, mode: [debug, release]},
+          { os: [Linux], name: linux, mode: [debug, release]},
           { os: [Linux], name: arch ssl_1_1, mode: [release] },
           { os: [Linux, macOS], name: jni, mode: [release] },
           { os: [Linux], name: android, mode: [release] },
           { os: [Linux], name: android x86_64, mode: [release] },
           { os: [Linux], name: android armeabi-v7a, mode: [release] },
           { os: [Linux], name: android arm64-v8a, mode: [release] },
-          { os: [macOS], name: main, mode: [debug, release] },
+          { os: [macOS], name: macos, mode: [debug, release] },
           { os: [macOS], name: ios, mode: [release] },
           { os: [macOS], name: ios x86, mode: [release] },
           { os: [macOS], name: ios armv7, mode: [release] },
           { os: [macOS], name: ios arm64, mode: [release] }
         ]
         mode: [debug, release]
-
-    env:
-      parameters: ${{ runner.os }} ${{ matrix.target.mode }} ${{ matrix.target.name }}
 
     if: contains(matrix.target.os, runner.os) && contains(matrix.target.mode, matrix.mode)
     steps:
@@ -133,7 +130,7 @@ jobs:
 
       - name: Install dependencies
         shell: bash
-        run: .github/scripts/setup ${{ env.parameters }}
+        run: .github/scripts/setup ${{ runner.os }} ${{ matrix.mode }} ${{ matrix.target.name }}
 
       - name: Checkout submodules
         shell: bash
@@ -151,12 +148,12 @@ jobs:
 
       - name: Configure CMake
         shell: bash
-        run: cmake -S ledger-core -B ledger-core/build $(.github/scripts/cmake ${{ env.parameters }}) -DCMAKE_INSTALL_PREFIX=install
+        run: cmake -S ledger-core -B ledger-core/build $(.github/scripts/cmake ${{ runner.os }} ${{ matrix.mode }} ${{ matrix.target.name }}) -DCMAKE_INSTALL_PREFIX=install
 
       - name: Build library
         shell: bash
         working-directory: ledger-core/build
-        run: .github/scripts/build ${{ env.parameters }}
+        run: .github/scripts/build ${{ runner.os }} ${{ matrix.mode }} ${{ matrix.target.name }}
 
       # - name: Test library
       #   if: matrix.mode == 'debug'
