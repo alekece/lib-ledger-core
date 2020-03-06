@@ -19,7 +19,7 @@ function setup_linux {
 
         # Set Android NDK variable
         echo "::set-env name=ANDROID_NDK_r18b::/home/circleci/android-ndk-r18b"
-        echo "::set-env name=POLLY_ROOT::toolchains/polly"
+        echo "::set-env name=POLLY_ROOT::$(pwd)/toolchains/polly"
 
         if [ "$EXTRA" == "armeabi-v7a" ]; then
             echo "::set-env name=TOOLCHAIN_NAME::android-ndk-r18b-api-21-armeabi-v7a-clang-libcxx"
@@ -49,7 +49,7 @@ function setup_macos {
         echo "::set-env name=POLLY_ROOT::$(pwd)/toolchains/polly"
         echo "::set-env name=POLLY_IOS_BUNDLE_IDENTIFIER:::com.ledger.core"
         # Needed for nocodesign toolchains
-        echo "::set-env name=XCODE_XCCONFIG_FILE::$POLLY_ROOT/scripts/NoCodeSign.xcconfig"
+        echo "::set-env name=XCODE_XCCONFIG_FILE::$(pwd)toolschains/polly/scripts/NoCodeSign.xcconfig"
 
         if [ "$EXTRA" == "armv7" ]; then
             echo "::set-env name=TOOLCHAIN_NAME::ios-nocodesign-11-2-dep-9-3-armv7"
