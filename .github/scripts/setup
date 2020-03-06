@@ -46,7 +46,7 @@ function setup_macos {
     fi
 
     if [ "$TARGET" == "ios" ]; then
-        echo "::set-env name=POLLY_ROOT::toolchains/polly"
+        echo "::set-env name=POLLY_ROOT::$(pwd)/toolchains/polly"
         echo "::set-env name=POLLY_IOS_BUNDLE_IDENTIFIER:::com.ledger.core"
         # Needed for nocodesign toolchains
         echo "::set-env name=XCODE_XCCONFIG_FILE::$POLLY_ROOT/scripts/NoCodeSign.xcconfig"
