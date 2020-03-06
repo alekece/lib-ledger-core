@@ -51,7 +51,7 @@ function cmake_target_android {
 }
 
 function cmake_linux {
-    if [ "$1" == "debug" ];
+    if [ "$1" == "debug" ]; then
         add_to_cmake_parameters -DSYS_OPENSSL=ON -DOPENSSL_SSL_LIBRARIES=/usr/lib/x86_64-linux-gnu -DOPENSSL_INCLUDE_DIR=/usr/include/openssl
     fi
 }
