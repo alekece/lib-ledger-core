@@ -292,7 +292,7 @@ jobs:
         run: |
           parameters="$(.github/scripts/cmake ${{ matrix.mode }} ${{ matrix.target.parameters }}) -DCMAKE_INSTALL_PREFIX=install"
           echo $parameters
-          cmake -S ledger-core -B ledger-core/build $parameters -DCMAKE_INSTALL_PREFIX=install
+          cmake -S ledger-core -B ledger-core/build $parameters
 
   # build-ledger-core-debug:
   #   name: Build ledger-core with ${{ matrix.target.runner }} runner for ${{ join(matrix.target.parameters, '-') }} target in debug mode
