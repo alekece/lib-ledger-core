@@ -124,10 +124,6 @@ jobs:
         mode: [debug, release]
 
     steps:
-      - name: Test
-        if: ! (contains(matrix.target.os, runner.os) && contains(matrix.target.mode, matrix.mode))
-        run: exit -1
-
       - name: Checkout repository
         uses: actions/checkout@v2
 
