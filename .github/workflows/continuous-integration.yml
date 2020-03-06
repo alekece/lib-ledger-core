@@ -265,7 +265,7 @@ jobs:
           { runner: macOS-latest, parameters: macos ios arm64 }
         ]
 
-    runs-on: ${{ matrix.targer.runner }}
+    runs-on: ${{ matrix.target.runner }}
 
     steps:
       - name: Checkout repository
