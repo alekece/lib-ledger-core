@@ -123,7 +123,6 @@ jobs:
         ]
         mode: [debug, release]
 
-    if:
     steps:
       - name: Test
         if: ! (contains(matrix.target.os, runner.os) && contains(matrix.target.mode, matrix.mode))
