@@ -62,11 +62,11 @@ function setup_macos {
             echo "::set-env name=OSX_SYSROOT::iphonesimulator"
             echo "::set-env name=ARCH::x86_64"
             # Copy iphone.cmake which is not forcing CMAKE_OSX_SYSROOT to iphoneos in cache
-            cp tools/build_ios/iphone.cmake lib-ledger-core/toolchains/polly/os/
+            cp tools/build_ios/iphone.cmake toolchains/polly/os/
         fi
 
-        cp tools/build_ios/framework.plist.in `pwd`
-        cp tools/build_ios/install_name.sh `pwd`
+        cp tools/build_ios/framework.plist.in .
+        cp tools/build_ios/install_name.sh .
 
         # Fixing NoCodeSign (see https://github.com/ruslo/polly/issues/302 for further details)
         sed -i '' '/CODE_SIGN_ENTITLEMENTS/d' toolchains/polly/scripts/NoCodeSign.xcconfig
