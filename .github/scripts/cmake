@@ -1,58 +1,88 @@
 MODE=$1
 OS=$2
 TARGET=$3
-EXTRA=${@:4:${#@}}
+
+cmake_parameters=""
+
+function add_to_cmake_parameters {
+    local parameter
+    for parameter
+    do
+        cmake_parameters="$cmake_parameters $parameter"
+    done
+}
 
 function cmake_debug {
+    # We don't need to set -DBUILD_TESTS=ON because the option is ON by default
     if [ "$TARGET" == "ios" -o "$TARGET" == "android" ]; then
-        echo -n "-DCMAKE_BUILD_TYPE:STRING=Debug"
+        add_to_cmake_parameters -DCMAKE_BUILD_TYPE:STRING=Debug
     else
-        echo -n "-DCMAKE_BUILD_TYPE=Debug"
+        add_to_cmake_parameters -DCMAKE_BUILD_TYPE=Debug
     fi
-
-    echo " -DBUILD_TESTS=ON -DPG_SUPPORT=ON -DPostgreSQL_INCLUDE_DIR=/usr/include/postgresql"
 }
 
 function cmake_release {
     if [ "$TARGET" == "ios" -o "$TARGET" == "android" ]; then
-        echo -n "-DCMAKE_BUILD_TYPE:STRING=Release"
+        add_to_cmake_parameters -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE:STRING=Release
     else
-        echo -n "-DCMAKE_BUILD_TYPE=Release"
+        add_to_cmake_parameters -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release
     fi
+}
 
-    echo " -DBUILD_TESTS=OFF -DPG_SUPPORT=OFF"
+function cmake_postgresql {
+    # We need to set SSL_SUPPORT because of PG_SUPPORT
+    if [ "$OS" == "macos" ]; then
+        add_to_cmake_parameters -DPG_SUPPORT=ON -DPostgreSQL_TYPE_INCLUDE_DIR=$POSTGRESQL_INCLUDE
+    else
+        add_to_cmake_parameters -DPG_SUPPORT=ON -DPostgreSQL_INCLUDE_DIR=$POSTGRESQL_INCLUDE
+    fi
+}
+
+function cmake_openssl {
+    if [ "$TARGET" == "arch" ]; then
+        add_to_cmake_parameters -DSYS_OPENSSL=ON -DOPENSSL_USE_STATIC_LIBS=TRUE
+    elif [ "$OS" == "linux" ]; then
+        add_to_cmake_parameters DSYS_OPENSSL=ON -DOPENSSL_SSL_LIBRARIES=/usr/lib/x86_64-linux-gnu -DOPENSSL_INCLUDE_DIR=/usr/include/openssl
+    else
+}
+
+function cmake_ssl {
+    add_to_cmake_parameters -DSSL_SUPPORT=ON
 }
 
 function cmake_jni {
-    # Activate SSL only when using PG for WD
-    echo "-DTARGET_JNI=ON -DPostgreSQL_INCLUDE_DIR=/usr/include/postgresql -DSSL_SUPPORT=ON"
+    add_to_cmake_parameters -DTARGET_JNI=ON
 }
 
 function cmake_arch {
-    if [ "$EXTRA" == "ssl_1_1" ]; then
-        echo "-DCMAKE_PREFIX=$HOME -DSYS_OPENSSL=ON -DOPENSSL_USE_STATIC_LIBS=TRUE"
-    fi
+    add_to_cmake_parameters -DCMAKE_PREFIX=$HOME
 }
 
 function cmake_ios {
-    echo "-G Xcode -DCMAKE_OSX_ARCHITECTURES:STRING=$EXTRA -DCMAKE_MACOSX_BUNDLE:BOOL=ON -DCMAKE_OSX_SYSROOT:STRING=$OSX_SYSROOT -DCMAKE_TOOLCHAIN_FILE=$POLLY_ROOT/$TOOLCHAIN_NAME.cmake"
+    add_to_cmake_parameters -G Xcode -DCMAKE_OSX_ARCHITECTURES:STRING=$OSX_ARCHITECTURES -DCMAKE_MACOSX_BUNDLE:BOOL=ON -DCMAKE_OSX_SYSROOT:STRING=$OSX_SYSROOT -DCMAKE_TOOLCHAIN_FILE=$POLLY_ROOT/$TOOLCHAIN_NAME.cmake
 }
 
 function cmake_android {
-    echo "-DTARGET_JNI=ON -DCMAKE_TOOLCHAIN_FILE=$POLLY_ROOT/$TOOLCHAIN_NAME.cmake"
+    cmake_jni
+    add_to_cmake_parameters -DCMAKE_TOOLCHAIN_FILE=$POLLY_ROOT/$TOOLCHAIN_NAME.cmake
 }
 
 function cmake_linux {
-    if [ "$MODE" == "debug" ]; then
-        echo "-DSYS_OPENSSL=ON -DOPENSSL_SSL_LIBRARIES=/usr/lib/x86_64-linux-gnu -DOPENSSL_INCLUDE_DIR=/usr/include/openssl"
-    fi
+    :
 }
 
 function cmake_macos {
-    if [ "$MODE" == "debug" ]; then
-        echo "-DCMAKE_PREFIX_PATH=/usr/local/Cellar/qt/$(ls /usr/local/Cellar/qt | grep 5.) -DPostgreSQL_TYPE_INCLUDE_DIR=/usr/include/postgresql"
+    if [ "$MODE" == "debug"]; then
+        add_to_cmake_parameters -DCMAKE_PREFIX_PATH=/usr/local/Cellar/qt/$(ls /usr/local/Cellar/qt | grep 5.)
     fi
 }
 
+function cmake_windows {
+    :
+}
 
-echo "$(type cmake_$TARGET > /dev/null && cmake_$TARGET) $(cmake_$MODE) $(cmake_$OS)"
+for x in $@; done
+    cmake_$x
+do
+
+echo $cmake_parameters
