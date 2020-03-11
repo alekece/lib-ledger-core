@@ -244,7 +244,7 @@ jobs:
   #       run: .github/scripts/build ${{ env.parameters }}
 
   build-ledger-core-test:
-    name: Build ledger-core on ${{ matrix.config.os }} for ${{ join(matrix.config.target, '-') }} target in ${{ matrix.mode }} mode
+    name: ${{ format('Build ledger-core on {0} for {1} target with {2} support in {3} mode', matrix.config.os, join(matrix.config.target, '-'), join(matrix.config.support, matrix.mode) }}
 
     strategy:
       fail-fast: false
@@ -254,16 +254,16 @@ jobs:
           { runner: ubuntu-latest, os: linux, target: [default], support: [jni, postgresql, ssl] },
           { runner: ubuntu-latest, os: linux, target: [arch], support: [postgresql, openssl] },
           { runner: ubuntu-latest, os: linux, target: [android] },
-          { runner: ubuntu-latest, os: linux, target: [android, armeabi-v7a] },
-          { runner: ubuntu-latest, os: linux, target: [android, arm64-v8a] },
-          { runner: ubuntu-latest, os: linux, target: [android, x86_64] },
-          { runner: macOS-latest, os: macos, target: [default] },
-          { runner: macOS-latest, os: macos, target: [default], support: [postgresql] },
-          { runner: macOS-latest, os: macos, target: [default], support: [jni, postgresql, ssl] },
-          { runner: macOS-latest, os: macos, target: [ios] },
-          { runner: macOS-latest, os: macos, target: [ios, x86] },
-          { runner: macOS-latest, os: macos, target: [ios, armv7] },
-          { runner: macOS-latest, os: macos, target: [ios, arm64] }
+          { runner: ubuntu-latest, os: linux, target: [android, armeabi-v7a], support: [jni] },
+          { runner: ubuntu-latest, os: linux, target: [android, arm64-v8a], support: [jni] },
+          { runner: ubuntu-latest, os: linux, target: [android, x86_64], support: [x86_64] },
+          { runner: macOS-latest, os: macos, target: default },
+          { runner: macOS-latest, os: macos, target: default, support: [postgresql] },
+          { runner: macOS-latest, os: macos, target: default, support: [jni, postgresql, ssl] },
+          { runner: macOS-latest, os: macos, target: ios },
+          { runner: macOS-latest, os: macos, target: ios, support: [x86] },
+          { runner: macOS-latest, os: macos, target: ios, support: [armv7] },
+          { runner: macOS-latest, os: macos, target: ios, support: [arm64] }
         ]
         mode: [debug, release]
 
@@ -273,14 +273,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-
       - name: Checkout submodules
         shell: bash
         run: git submodule update --init --recursive
 
       - name: Install dependencies
         shell: bash
-        run: .github/scripts/setup ${{ matrix.mode }} ${{ matrix.config.os }} ${{ join(matrix.config.target, ' ') }}
+        run: .github/scripts/setup ${{ matrix.config.os }} ${{ matrix.mode }} ${{ join(matrix.config.target, ' ') }}
 
       - name: Create build directory
         shell: bash
@@ -289,7 +288,7 @@ jobs:
       - name: Configure CMake
         shell: bash
         run: |
-          parameters="$(.github/scripts/cmake ${{ matrix.mode }} ${{ matrix.config.os }} ${{ matrix.config.target[0] }} ${{ join(matrix.config.support, ' ') }})"
+          parameters="$(.github/scripts/cmake ${{ matrix.config.os }} ${{ matrix.mode }} ${{ matrix.config.target[0] }} ${{ join(matrix.config.support, ' ') }})"
           echo $parameters
           cmake -S ledger-core -B ledger-core/build $parameters -DCMAKE_INSTALL_PREFIX=install
 

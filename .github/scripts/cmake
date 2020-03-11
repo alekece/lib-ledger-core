@@ -1,5 +1,5 @@
-MODE=$1
-OS=$2
+OS=$1
+MODE=$2
 TARGET=$3
 
 cmake_parameters=""
@@ -43,7 +43,7 @@ function cmake_openssl {
         add_to_cmake_parameters -DSYS_OPENSSL=ON -DOPENSSL_USE_STATIC_LIBS=TRUE
     elif [ "$OS" == "linux" ]; then
         add_to_cmake_parameters DSYS_OPENSSL=ON -DOPENSSL_SSL_LIBRARIES=/usr/lib/x86_64-linux-gnu -DOPENSSL_INCLUDE_DIR=/usr/include/openssl
-    else
+    fi
 }
 
 function cmake_ssl {
@@ -67,22 +67,15 @@ function cmake_android {
     add_to_cmake_parameters -DCMAKE_TOOLCHAIN_FILE=$POLLY_ROOT/$TOOLCHAIN_NAME.cmake
 }
 
-function cmake_linux {
-    :
-}
-
-function cmake_macos {
-    if [ "$MODE" == "debug"]; then
+function cmake_default {
+     if [ "$MODE" == "debug" -a "$OS" == "macos"]; then
         add_to_cmake_parameters -DCMAKE_PREFIX_PATH=/usr/local/Cellar/qt/$(ls /usr/local/Cellar/qt | grep 5.)
     fi
 }
 
-function cmake_windows {
-    :
-}
-
-for x in $@; done
-    cmake_$x
+# Skip OS parameter in purpose - none specific implementation
+for parameter in ${@:1:${#@}}; done
+    cmake_$parameter
 do
 
 echo $cmake_parameters

@@ -1,5 +1,5 @@
-MODE=$1
-OS=$2
+OS=$1
+MODE=$2
 TARGET=$3
 # Only available for android and ios targets
 TARGET_ARCHITECTURE=$4
